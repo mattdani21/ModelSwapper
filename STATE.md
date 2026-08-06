@@ -20,11 +20,19 @@
 
 Findings: (1) eviction is nearly free — swap cost is dominated by weight loading; G2.1 (layer-priority streaming) is the right lever. (2) On 8 GB RAM, warm ≈ cold: the page cache cannot hold both models' weights, so the OS evicts the incoming model's cached pages during the outgoing load — warm advantage needs ≥ T0-size RAM. (3) Run-to-run variance 1.6–2.3 s cold / 2.7–4.5 s warm from OS cache state. (4) 8B Q4 does not fit the T4 tier (hardware floor). Raw data: `benchmarks/results/swap_baseline-20260806-233738.json`, `-233855.json` (4B↔0.6B), `-234241.json` (4B↔8B, failure recorded).
 
+## Frontier baseline (measured 2026-08-07, deepseek-v4-pro, suite swapos-v1)
+
+- **48/50 tasks passed (96.0%)** — bugfix 17/17, feature 16/17, refactor 15/16
+- Mean 19.3 s/task, est cost **$0.15 for the whole suite (~$0.003/task)**
+- Fails: feature-08 (9/10), refactor-12 (8/9) — both single-test near-misses
+- Raw data: `benchmarks/results/baseline-deepseek-v4-pro-20260807-001937.json`
+- **Phase 1 parity target derived:** ≥ 80% of 96% → pipeline must pass ≥ 76.8% absolute (G1.2)
+
 ## Broken / incomplete
 
 - `runtime/` — swap engine v0 exists (subprocess llama-server: load/generate/evict/measure); in-process engine (mmap, layer-priority, pre-fetch) is Phase 2.
 - `pipeline/` and `router/` — empty stubs by design (Phase 1).
-- Benchmark suite: 50 tasks authored (bugfix 17, refactor 16, feature 17 pending re-dispatch); RED/GREEN verified; baseline pass rates pending measurement.
+- Benchmark suite: **50/50 tasks authored + RED/GREEN verified**; frontier baseline measured (48/50, 96.0%)
 - No T0 (24 GB) or T1 (48 GB) hardware available to the swarm yet — those numbers are open.
 
 ## Blockers
