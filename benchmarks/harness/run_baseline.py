@@ -106,7 +106,8 @@ def main() -> None:
     ap.add_argument("--key", default=os.environ.get("DEEPSEEK_API_KEY", ""))
     ap.add_argument("--out", default="")
     ap.add_argument("--limit", type=int, default=0, help="0 = all tasks")
-    ap.add_argument("--max-tokens", type=int, default=4096)
+    ap.add_argument("--max-tokens", type=int, default=8192,
+                    help="output budget incl. reasoning_content (deepseek-v4-pro is a reasoning model)")
     ap.add_argument("--temperature", type=float, default=0.2)
     ap.add_argument("--timeout", type=int, default=300)
     args = ap.parse_args()
