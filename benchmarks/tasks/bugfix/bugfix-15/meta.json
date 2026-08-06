@@ -1,0 +1,1 @@
+{"task_id": "bugfix-15", "category": "bugfix", "difficulty": 3, "description": "longest_unique_substring: window start set to old index instead of old index + 1"}

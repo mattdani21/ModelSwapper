@@ -1,0 +1,1 @@
+{"task_id": "refactor-12", "category": "refactor", "difficulty": 2, "description": "duplicated query/collect loops in record finders; extract _check_value/_collect"}

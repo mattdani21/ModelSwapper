@@ -113,21 +113,41 @@ class Server:
         t0 = time.monotonic()
         ttft = None
         tokens = 0
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            for raw in resp:
-                line = raw.decode().strip()
-                if not line.startswith("data:"):
-                    continue
-                try:
-                    chunk = json.loads(line[5:])
-                except json.JSONDecodeError:
-                    continue
-                if chunk.get("content") and ttft is None:
-                    ttft = round(time.monotonic() - t0, 3)
-                tokens = chunk.get("timings", {}).get("predicted_n", tokens)
+        sampling = True
+        samples: list[int] = []
+
+        def _sample_rss() -> None:
+            pid = self.proc.pid if self.proc else None
+            while sampling and pid is not None:
+                rss = process_rss_kb(pid)
+                if rss:
+                    samples.append(rss)
+                time.sleep(0.1)
+
+        import threading
+        t_sampler = threading.Thread(target=_sample_rss, daemon=True)
+        t_sampler.start()
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                for raw in resp:
+                    line = raw.decode().strip()
+                    if not line.startswith("data:"):
+                        continue
+                    try:
+                        chunk = json.loads(line[5:])
+                    except json.JSONDecodeError:
+                        continue
+                    if chunk.get("content") and ttft is None:
+                        ttft = round(time.monotonic() - t0, 3)
+                    tokens = chunk.get("timings", {}).get("predicted_n", tokens)
+        finally:
+            sampling = False
+            t_sampler.join(timeout=2)
         total = round(time.monotonic() - t0, 3)
         rss = process_rss_kb(self.proc.pid if self.proc else -1)
-        self.peak_rss_kb = max(self.peak_rss_kb, rss or 0)
+        if rss:
+            samples.append(rss)
+        self.peak_rss_kb = max(self.peak_rss_kb, max(samples) if samples else (rss or 0))
         return {"ttft_s": ttft, "total_s": total, "tokens": tokens,
                 "peak_rss_kb": self.peak_rss_kb}
 

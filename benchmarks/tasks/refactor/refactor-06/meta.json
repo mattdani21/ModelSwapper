@@ -1,0 +1,1 @@
+{"task_id": "refactor-06", "category": "refactor", "difficulty": 2, "description": "duplicated TSV reading/splitting in load_users/load_products; extract _read_rows/_split_row"}

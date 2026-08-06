@@ -1,0 +1,1 @@
+{"task_id": "refactor-14", "category": "refactor", "difficulty": 3, "description": "logger on module-level globals with duplicated level checks; extract Logger class"}

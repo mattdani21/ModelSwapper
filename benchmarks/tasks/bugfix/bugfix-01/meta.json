@@ -1,0 +1,1 @@
+{"task_id": "bugfix-01", "category": "bugfix", "difficulty": 1, "description": "is_palindrome: non-alphanumeric characters not stripped before comparing"}

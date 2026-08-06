@@ -1,0 +1,1 @@
+{"task_id": "bugfix-17", "category": "bugfix", "difficulty": 3, "description": "next_permutation: j-search uses < instead of <=, skips equal elements with duplicates"}

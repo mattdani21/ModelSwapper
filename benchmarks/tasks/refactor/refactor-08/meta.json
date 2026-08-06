@@ -1,0 +1,1 @@
+{"task_id": "refactor-08", "category": "refactor", "difficulty": 2, "description": "cart on raw global list with duplicated price checks; extract Cart class"}

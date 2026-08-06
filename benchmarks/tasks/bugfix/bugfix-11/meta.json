@@ -1,0 +1,1 @@
+{"task_id": "bugfix-11", "category": "bugfix", "difficulty": 2, "description": "run_length_encode: count reset to 0 after a run flush, undercounting the next run"}

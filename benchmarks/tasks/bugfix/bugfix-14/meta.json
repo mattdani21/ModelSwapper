@@ -1,0 +1,1 @@
+{"task_id": "bugfix-14", "category": "bugfix", "difficulty": 2, "description": "valid_parentheses: closing bracket type never checked against stack top"}

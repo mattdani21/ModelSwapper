@@ -1,0 +1,1 @@
+{"task_id": "bugfix-12", "category": "bugfix", "difficulty": 2, "description": "top_k: sorted by value (pair[0]) instead of frequency (pair[1])"}

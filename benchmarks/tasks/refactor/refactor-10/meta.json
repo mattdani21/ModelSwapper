@@ -1,0 +1,1 @@
+{"task_id": "refactor-10", "category": "refactor", "difficulty": 2, "description": "copy-pasted interest math and validation; extract _validate/_annual_rate"}

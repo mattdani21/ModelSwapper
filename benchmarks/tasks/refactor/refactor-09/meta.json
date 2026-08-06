@@ -1,0 +1,1 @@
+{"task_id": "refactor-09", "category": "refactor", "difficulty": 2, "description": "handle_request monolith mixing parse/auth/apply/format; split into helpers"}

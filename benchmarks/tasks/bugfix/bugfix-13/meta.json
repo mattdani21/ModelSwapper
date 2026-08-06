@@ -1,0 +1,1 @@
+{"task_id": "bugfix-13", "category": "bugfix", "difficulty": 2, "description": "camel_to_snake: acronym boundaries not handled (uppercase followed by lowercase)"}

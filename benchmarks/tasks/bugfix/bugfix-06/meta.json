@@ -1,0 +1,1 @@
+{"task_id": "bugfix-06", "category": "bugfix", "difficulty": 2, "description": "merge_intervals: touching intervals not merged (start < last[1] instead of <=)"}

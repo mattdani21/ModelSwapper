@@ -1,0 +1,1 @@
+{"task_id": "bugfix-03", "category": "bugfix", "difficulty": 1, "description": "count_vowels: uppercase vowels not counted (missing .lower())"}

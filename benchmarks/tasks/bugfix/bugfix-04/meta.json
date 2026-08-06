@@ -1,0 +1,1 @@
+{"task_id": "bugfix-04", "category": "bugfix", "difficulty": 1, "description": "factorial: off-by-one, loop range(1, n) misses the final factor"}

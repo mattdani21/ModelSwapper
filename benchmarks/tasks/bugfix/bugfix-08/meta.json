@@ -1,0 +1,1 @@
+{"task_id": "bugfix-08", "category": "bugfix", "difficulty": 2, "description": "parse_csv: escaped double quotes (\"\") not handled, quote state toggles blindly"}

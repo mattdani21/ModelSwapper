@@ -1,0 +1,1 @@
+{"task_id": "refactor-13", "category": "refactor", "difficulty": 2, "description": "duplicated text normalization and tallying; extract _normalize/_tally"}

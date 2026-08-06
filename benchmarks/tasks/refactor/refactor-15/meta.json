@@ -1,0 +1,1 @@
+{"task_id": "refactor-15", "category": "refactor", "difficulty": 3, "description": "process_command monolith with duplicated arity/key checks; extract dispatch tables and handlers"}

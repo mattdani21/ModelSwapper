@@ -1,0 +1,1 @@
+{"task_id": "bugfix-02", "category": "bugfix", "difficulty": 1, "description": "sum_even_numbers: sums odd numbers (n % 2 == 1 instead of == 0)"}

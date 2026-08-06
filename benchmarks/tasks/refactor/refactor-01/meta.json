@@ -1,0 +1,1 @@
+{"task_id": "refactor-01", "category": "refactor", "difficulty": 1, "description": "duplicated credential validation in register_user/login_user; extract validate_credentials"}

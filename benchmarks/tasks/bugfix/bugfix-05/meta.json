@@ -1,0 +1,1 @@
+{"task_id": "bugfix-05", "category": "bugfix", "difficulty": 1, "description": "reverse_list: mutates the input list in place (lst.reverse())"}

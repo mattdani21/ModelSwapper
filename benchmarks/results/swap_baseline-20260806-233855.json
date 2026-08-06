@@ -1,0 +1,102 @@
+{
+  "goal_refs": [
+    "G0.1",
+    "G0.2"
+  ],
+  "run_at": "2026-08-06T21:38:55Z",
+  "host": {
+    "machine": "Apple M3 (arm64)",
+    "ram_gb": 8.0,
+    "tier": "T4",
+    "os": "macOS 26.6",
+    "backend": "llama.cpp (llama-server)",
+    "context": 2048,
+    "n_predict": 48,
+    "ngpu_layers": "99",
+    "can_force_purge": false
+  },
+  "models": {
+    "a": {
+      "path": "models/Qwen3-4B-Q4_K_M.gguf",
+      "size_gb": 2.5
+    },
+    "b": {
+      "path": "models/Qwen3-0.6B-Q8_0.gguf",
+      "size_gb": 0.64
+    }
+  },
+  "memory": {
+    "free_inactive_gb_before": 0.68,
+    "free_inactive_gb_after": 0.73,
+    "note": "macOS page cache retains evicted weights (that IS the warm cache); reclamation verified via process RSS returning to 0 and free+inactive memory returning to baseline."
+  },
+  "runs": [
+    {
+      "label": "A-cold",
+      "model": "Qwen3-4B-Q4_K_M.gguf",
+      "load_s": 9.412,
+      "evict_s": 0.185,
+      "ttft_s": 0.13,
+      "total_s": 2.018,
+      "tokens": 48,
+      "peak_rss_kb": 800432,
+      "rss_gb": 0.8
+    },
+    {
+      "label": "B-cold",
+      "model": "Qwen3-0.6B-Q8_0.gguf",
+      "load_s": 1.426,
+      "evict_s": 0.1,
+      "ttft_s": 0.032,
+      "total_s": 0.751,
+      "tokens": 48,
+      "peak_rss_kb": 923600,
+      "rss_gb": 0.92
+    },
+    {
+      "label": "A-warm",
+      "model": "Qwen3-4B-Q4_K_M.gguf",
+      "load_s": 3.385,
+      "evict_s": 0.181,
+      "ttft_s": 0.125,
+      "total_s": 1.942,
+      "tokens": 48,
+      "peak_rss_kb": 1528128,
+      "rss_gb": 1.53
+    },
+    {
+      "label": "B-warm",
+      "model": "Qwen3-0.6B-Q8_0.gguf",
+      "load_s": 4.253,
+      "evict_s": 0.069,
+      "ttft_s": 0.03,
+      "total_s": 0.711,
+      "tokens": 48,
+      "peak_rss_kb": 944768,
+      "rss_gb": 0.94
+    }
+  ],
+  "swaps": [
+    {
+      "from": "A",
+      "to": "B",
+      "kind": "cold",
+      "evict_s": 0.185,
+      "load_to_ttft_s": 1.458,
+      "swap_s": 1.643
+    },
+    {
+      "from": "A",
+      "to": "B",
+      "kind": "warm",
+      "evict_s": 0.181,
+      "load_to_ttft_s": 4.283,
+      "swap_s": 4.464
+    }
+  ],
+  "targets": {
+    "G0.2_cold_s": 8.0,
+    "G0.2_warm_s": 3.0
+  },
+  "methodology": "cold = first load of the session (weights never in page cache); warm = reload after eviction (weights in OS page cache); swap_s = evict_s + load_s + ttft of the incoming model; load_s = spawn llama-server -> /health 200; ttft from streaming first token. T4-tier hardware (8 GB M3): targets are T0-tier trajectory."
+}

@@ -1,0 +1,1 @@
+{"task_id": "refactor-07", "category": "refactor", "difficulty": 2, "description": "duplicated row rendering in print_table/print_csv; extract _render_row"}

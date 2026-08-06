@@ -1,0 +1,1 @@
+{"task_id": "refactor-11", "category": "refactor", "difficulty": 2, "description": "duplicated grade boundary chain in letter_grade/classify; extract _score_to_grade"}
