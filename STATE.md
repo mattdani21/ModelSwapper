@@ -16,8 +16,9 @@
 | Eviction time | 0.06–0.48 s | 0.07–0.19 s | — |
 | Peak RSS (4B Q4_K_M) | 1.74 GB | 1.53 GB | T4 ceiling 6.5 GB ✓ |
 | Peak RSS (0.6B Q8) | 0.94 GB | 0.92–0.94 GB | ✓ |
+| 8B Q4_K_M on 8 GB | — | FAILS (Metal alloc: `failed to fit params to free device memory`) | T4 floor: 4B-class max |
 
-Findings: (1) eviction is nearly free — swap cost is dominated by weight loading; G2.1 (layer-priority streaming) is the right lever. (2) On 8 GB RAM, warm ≈ cold: the page cache cannot hold both models' weights, so the OS evicts the incoming model's cached pages during the outgoing load — warm advantage needs ≥ T0-size RAM. (3) Run-to-run variance 1.6–2.3 s cold / 2.7–4.5 s warm from OS cache state. Raw data: `benchmarks/results/swap_baseline-20260806-233738.json` + `swap_baseline-20260806-234540.json`. 8B-class measurement pending (download complete).
+Findings: (1) eviction is nearly free — swap cost is dominated by weight loading; G2.1 (layer-priority streaming) is the right lever. (2) On 8 GB RAM, warm ≈ cold: the page cache cannot hold both models' weights, so the OS evicts the incoming model's cached pages during the outgoing load — warm advantage needs ≥ T0-size RAM. (3) Run-to-run variance 1.6–2.3 s cold / 2.7–4.5 s warm from OS cache state. (4) 8B Q4 does not fit the T4 tier (hardware floor). Raw data: `benchmarks/results/swap_baseline-20260806-233738.json`, `-233855.json` (4B↔0.6B), `-234241.json` (4B↔8B, failure recorded).
 
 ## Broken / incomplete
 

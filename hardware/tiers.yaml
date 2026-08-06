@@ -34,4 +34,5 @@ tiers:
     policy: "aggressive swap"
     peak_memory_ceiling_gb: 6.5
     measured: true
+    max_specialist: "4B class at Q4 (measured: 8B Q4_K_M fails Metal allocation on 8 GB; 4B Q4_K_M runs at ~1.5-1.7 GB RSS)"
     note: "the long-term moat — hyperscalers cannot follow here"
