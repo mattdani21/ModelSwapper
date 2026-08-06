@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Model weights (downloaded, never committed)
+models/
+*.gguf
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Local scratch
+*.log
+scratch/

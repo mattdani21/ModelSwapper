@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/mattdani21/ModelSwapper/capsule/schema_v0.json",
+  "title": "Context Capsule v0",
+  "description": "Model-agnostic working state carried between swapped specialists (ADR-0002).",
+  "type": "object",
+  "required": ["schema_version", "task_id", "goal", "constraints", "plan", "artifacts", "decisions_log", "phase_history", "meta"],
+  "properties": {
+    "schema_version": {"type": "string", "enum": ["0.1.0"]},
+    "task_id": {"type": "string", "minLength": 1},
+    "goal": {"type": "string"},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "plan": {"type": "array", "items": {"type": "object", "required": ["step", "status"], "properties": {
+      "step": {"type": "string"},
+      "status": {"type": "string", "enum": ["planned", "active", "done", "blocked"]},
+      "notes": {"type": "string"}
+    }}},
+    "artifacts": {"type": "array", "items": {"type": "object", "required": ["path", "content", "kind"], "properties": {
+      "path": {"type": "string"},
+      "content": {"type": "string"},
+      "kind": {"type": "string", "enum": ["code", "diff", "test", "other"]}
+    }}},
+    "decisions_log": {"type": "array", "items": {"type": "object", "required": ["at", "phase", "decision", "rationale"], "properties": {
+      "at": {"type": "string"},
+      "phase": {"type": "string"},
+      "decision": {"type": "string"},
+      "rationale": {"type": "string"}
+    }}},
+    "phase_history": {"type": "array", "items": {"type": "object", "required": ["phase", "model", "started_at", "finished_at", "outcome"], "properties": {
+      "phase": {"type": "string"},
+      "model": {"type": "string"},
+      "started_at": {"type": "string"},
+      "finished_at": {"type": "string"},
+      "swap_in_ms": {"type": "number"},
+      "swap_out_ms": {"type": "number"},
+      "tokens": {"type": "integer"},
+      "outcome": {"type": "string", "enum": ["ok", "retry", "fail"]},
+      "capsule_bytes": {"type": "integer"},
+      "capsule_tokens_est": {"type": "integer"}
+    }}},
+    "meta": {"type": "object", "required": ["created_at", "updated_at", "capsule_version", "budget", "run_id"], "properties": {
+      "created_at": {"type": "string"},
+      "updated_at": {"type": "string"},
+      "capsule_version": {"type": "string"},
+      "budget": {"type": "object", "properties": {
+        "max_loop_iterations": {"type": "integer"},
+        "max_tokens": {"type": "integer"}
+      }},
+      "run_id": {"type": "string"}
+    }}
+  }
+}
