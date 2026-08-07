@@ -24,8 +24,8 @@ from typing import Optional
 
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "benchmarks", "results")
 LLAMA_SERVER = os.environ.get("LLAMA_SERVER", "llama-server")
-CONTEXT = 2048
-N_PREDICT = 48
+CONTEXT = int(os.environ.get("LLAMA_CONTEXT", "2048"))
+N_PREDICT = int(os.environ.get("LLAMA_N_PREDICT", "48"))
 NGPU_LAYERS = os.environ.get("LLAMA_NGPU", "99")  # Metal: all layers
 PROMPT = "Write a short Python function that computes the Fibonacci sequence. Output only code."
 
