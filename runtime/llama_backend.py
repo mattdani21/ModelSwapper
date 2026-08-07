@@ -40,6 +40,11 @@ class LlamaBackend(ModelBackend):
             "n_predict": max_tokens,
             "temperature": temperature,
             "stream": True,
+            # Qwen3 chat templates think by default; the pipeline wants direct
+            # answers (thinking tokens are pure overhead at our speeds and they
+            # blew the plan/code budgets on the first Kaggle run). Non-Qwen3
+            # templates ignore this field.
+            "enable_thinking": False,
         }).encode()
         req = urllib.request.Request(
             f"http://127.0.0.1:{self.port}/completion",
