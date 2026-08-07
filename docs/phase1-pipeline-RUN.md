@@ -21,14 +21,14 @@ else Q3_K_M (single T4). Specialists ≤ 32B class pre-quantization (constitutio
 
 ## Steps (in the notebook, `notebooks/phase1-pipeline-eval.ipynb`)
 
-1. Print `nvidia-smi`; clone `mattdani21/ModelSwapper` at the pinned commit (below).
-2. Build `llama-server` with CUDA: `git clone --depth 1 https://github.com/ggml-org/llama.cpp && cmake -B build -DGGML_CUDA=ON -DCMAKE_BUILD_TYPE=Release && cmake --build build -j --target llama-server`
+1. Print `nvidia-smi`; clone `mattdani21/ModelSwapper` at HEAD.
+2. **llama.cpp via official CUDA release binary** (GitHub releases `*-bin-ubuntu-x64.zip`) — no source build, no cmake (the source build fails on Kaggle's CUDA layout: `CUDA::cuda_driver` target missing).
 3. `pip install pytest` (the sacred grader shells out to pytest).
-4. Download the GGUFs from Hugging Face (public repos; HF_TOKEN env used only if set).
+4. **Models mount from the private dataset `mattdani21/swapos-ggufs`** at `/kaggle/input/swapos-ggufs/` (100 GB input space; `/kaggle/working` cannot hold 24 GB of models — verified disk-full failure on run 1).
 5. Run:
    ```
    LLAMA_CONTEXT=4096 python3 pipeline/run_pipeline.py \
-     --models-json '{"reason":"<14B>","code":"<coder>","review":"<14B>"}' \
+     --models-json '{"reason":"/kaggle/input/swapos-ggufs/Qwen3-14B-Q4_K_M.gguf","code":"/kaggle/input/swapos-ggufs/Qwen3-Coder-30B-A3B-Instruct-Q3_K_M.gguf","review":"/kaggle/input/swapos-ggufs/Qwen3-14B-Q4_K_M.gguf"}' \
      --out /kaggle/working/pipeline-results.json \
      --capsule-dir /kaggle/working/capsules \
      --port-base 8950
@@ -36,6 +36,10 @@ else Q3_K_M (single T4). Specialists ≤ 32B class pre-quantization (constitutio
    Checkpointing: results are rewritten after every task, so a timeout still
    yields completed tasks.
 6. Zip `/kaggle/working/pipeline-results.json` + `capsules/` → `results.zip`.
+
+Dataset refresh (when models change): re-run `scratch/upload_dataset.sh` (downloads
+the GGUFs to `models/`, hard-links them into the dataset dir, `kaggle datasets
+create -p` — re-push with the same id UPDATES the dataset).
 
 ## Estimated GPU time
 
