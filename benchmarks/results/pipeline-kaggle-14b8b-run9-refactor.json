@@ -1,0 +1,220 @@
+{
+  "run_at": "2026-08-08T01:26:44Z",
+  "models": {
+    "reason": "/kaggle/working/models/Qwen3-14B-Q4_K_M.gguf",
+    "code": "/kaggle/working/models/Qwen3-8B-Q4_K_M.gguf",
+    "review": "/kaggle/working/models/Qwen3-14B-Q4_K_M.gguf"
+  },
+  "max_iterations": 3,
+  "max_tokens": 2048,
+  "temperature": 0.2,
+  "tasks_total": 16,
+  "mode": "swap-per-phase (each phase loads its specialist fresh, evicts after)",
+  "results": [
+    {
+      "task_id": "refactor-01",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1828,
+      "wall_clock_s": 0.26,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-02",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1340,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-03",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1438,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-04",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1525,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-05",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1510,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-06",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1661,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-07",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1184,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-08",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1607,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-09",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1723,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-10",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1361,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-11",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1475,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-12",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1365,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-13",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1438,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-14",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 2228,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-15",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1934,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    },
+    {
+      "task_id": "refactor-16",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 0,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [],
+      "capsule_bytes": 1877,
+      "wall_clock_s": 0.25,
+      "error": "reason phase failed: llama-server exited early (rc=127) for Qwen3-14B-Q4_K_M.gguf"
+    }
+  ],
+  "tasks_passed": 0,
+  "pass_rate": 0.0,
+  "per_category": {
+    "refactor": {
+      "passed": 0,
+      "total": 16
+    }
+  },
+  "mean_wall_clock_s": 0.25,
+  "wall_clock_s": 4.1,
+  "mean_load_s": null,
+  "mean_evict_s": null,
+  "mean_ttft_s": null
+}
