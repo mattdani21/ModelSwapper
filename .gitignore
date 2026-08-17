@@ -17,3 +17,6 @@ models/
 # Local scratch
 *.log
 scratch/
+
+# Kanban / orchestrator worktrees (nested repos, never committed)
+.worktrees/
