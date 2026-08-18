@@ -18,6 +18,7 @@ import os
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 import urllib.request
 from typing import Optional
@@ -73,6 +74,8 @@ class Server:
 
     def start(self, timeout: int = 300) -> None:
         t0 = time.monotonic()
+        self._errf = tempfile.NamedTemporaryFile(mode="w+", suffix=".log", delete=False)
+        self._err_path = self._errf.name
         self.proc = subprocess.Popen(
             [
                 LLAMA_SERVER,
@@ -84,12 +87,20 @@ class Server:
                 "--log-disable",
             ],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=self._errf,
         )
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             if self.proc.poll() is not None:
-                raise RuntimeError(f"llama-server exited early (rc={self.proc.returncode}) for {self.name}")
+                tail = ""
+                try:
+                    with open(self._err_path) as f:
+                        tail = f.read()[-800:]
+                except Exception:
+                    pass
+                raise RuntimeError(
+                    f"llama-server exited early (rc={self.proc.returncode}) for {self.name}: {tail}"
+                )
             try:
                 with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/health", timeout=2) as r:
                     if r.status == 200:
