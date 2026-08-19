@@ -92,14 +92,18 @@ class Server:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             if self.proc.poll() is not None:
+                head = ""
                 tail = ""
                 try:
                     with open(self._err_path) as f:
-                        tail = f.read()[-800:]
+                        txt = f.read()
+                    head = txt[:2500]
+                    tail = txt[-800:]
                 except Exception:
                     pass
                 raise RuntimeError(
-                    f"llama-server exited early (rc={self.proc.returncode}) for {self.name}: {tail}"
+                    f"llama-server exited early (rc={self.proc.returncode}) for {self.name}: "
+                    f"HEAD<<{head}>>TAIL<<{tail}>>"
                 )
             try:
                 with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/health", timeout=2) as r:
