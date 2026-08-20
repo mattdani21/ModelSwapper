@@ -38,13 +38,24 @@ N_PREDICT = int(os.environ.get("LLAMA_N_PREDICT", "32"))
 
 
 class PrefetchEngine:
-    """Two slots; at most one is active at a time; standby pre-loads."""
+    """Two slots; at most one is active at a time; standby pre-loads.
 
-    def __init__(self, ceiling_gb: float = CEILING_GB):
+    Every server gets a UNIQUE port from an engine-wide counter — a standby
+    can never race a fallback on the same port. A prefetch thread that loses
+    its slot reaps its own server.
+    """
+
+    def __init__(self, ceiling_gb: float = CEILING_GB, port_base: int = 8800):
         self.ceiling_gb = ceiling_gb
         self.slots: dict[str, Optional[Server]] = {"active": None, "standby": None}
         self.stats: dict = {}
         self._lock = threading.Lock()
+        self._next_port = [port_base]
+
+    def _alloc_port(self) -> int:
+        p = self._next_port[0]
+        self._next_port[0] += 1
+        return p
 
     # -- helpers ----------------------------------------------------------
     def _model_gb(self, model_path: str) -> float:
@@ -64,7 +75,7 @@ class PrefetchEngine:
         return dt
 
     # -- operations ---------------------------------------------------------
-    def prefetch(self, model_path: str, port: int) -> bool:
+    def prefetch(self, model_path: str, port: Optional[int] = None) -> bool:
         """Start loading `model_path` into the standby slot, non-blocking.
 
         Returns True if the prefetch was kicked off (fits under the ceiling).
@@ -76,12 +87,16 @@ class PrefetchEngine:
                 self._stop_slot("standby")
             if not self._fits(model_path):
                 return False
-            srv = Server(model_path, port)
+            srv = Server(model_path, port if port is not None else self._alloc_port())
             self.slots["standby"] = srv
 
         def _load() -> None:
             try:
                 srv.start()
+                # reaped if we lost the slot while loading
+                with self._lock:
+                    if self.slots["standby"] is not srv:
+                        srv.stop()
             except Exception as e:  # noqa: BLE001
                 srv.load_error = str(e)  # type: ignore[attr-defined]
                 with self._lock:
@@ -94,28 +109,50 @@ class PrefetchEngine:
     def standby_ready(self, model_path: str) -> bool:
         srv = self.slots["standby"]
         return bool(srv and srv.proc is not None and srv.proc.poll() is None
-                    and srv.model_path == model_path and srv.load_s is not None)
+                    and srv.model_path == model_path
+                    and srv.load_s is not None and srv.load_s >= 0)
 
     def swap(self, model_path: str, port: int) -> dict:
-        """Make `model_path` the active model. Returns swap timing stats."""
+        """Make `model_path` the active model. Returns swap timing stats.
+
+        Promotion path: the standby slot already has this model (ready, or
+        still loading — we wait for it, bounded). Old active is evicted.
+        Fallback path (wrong model / errored / nothing prefetched): stop the
+        standby first (it may hold the port), then load sequentially.
+        """
         t0 = time.monotonic()
         with self._lock:
             standby = self.slots["standby"]
-            promoted = self.standby_ready(model_path)
-            hidden = standby.load_s if (promoted and standby) else None
-            if promoted and standby is not None:
-                old_active = self.slots["active"]
-                self.slots["active"] = standby
-                self.slots["standby"] = None
-                evict_s = self._stop_slot("active") if old_active else 0.0  # evict the old one
-                # `self.slots["active"]` is the promoted standby; don't touch it
-                self.slots["active"] = standby
-                swap_s = round(time.monotonic() - t0, 3)
+            matching = standby is not None and standby.model_path == model_path
+        if os.environ.get("OVERLAP_DEBUG"):
+            print(f"DBG swap({os.path.basename(model_path)}): matching={matching} "
+                  f"standby={os.path.basename(standby.model_path) if standby else None} "
+                  f"load_s={standby.load_s if standby else None} "
+                  f"alive={(standby.proc is not None and standby.proc.poll() is None) if standby else None}", flush=True)
+        if matching:
+            assert standby is not None
+            srv = standby
+            deadline = time.monotonic() + 300
+            while time.monotonic() < deadline:
+                if srv.proc is None or srv.proc.poll() is not None:
+                    break  # died during load
+                if srv.load_s is not None and srv.load_s >= 0:
+                    break  # ready
+                time.sleep(0.05)
+            if srv.load_s is not None and srv.load_s >= 0 and srv.proc is not None and srv.proc.poll() is None:
+                with self._lock:
+                    old_active = self.slots["active"]
+                    self.slots["active"] = srv
+                    self.slots["standby"] = None
+                hidden = srv.load_s
+                evict_s = old_active.stop() if old_active else 0.0
                 return {"promoted": True, "hidden_load_s": hidden,
-                        "evict_s": evict_s, "swap_s": swap_s}
+                        "evict_s": evict_s, "swap_s": round(time.monotonic() - t0, 3)}
         # fallback: sequential (Phase 1 semantics)
+        if self.slots["standby"] is not None:  # a leftover standby holds its port
+            self._stop_slot("standby")
         evict_s = self._stop_slot("active")
-        srv = Server(model_path, port)
+        srv = Server(model_path, self._alloc_port())
         srv.start()
         self.slots["active"] = srv
         swap_s = round(time.monotonic() - t0, 3)
@@ -206,23 +243,21 @@ def main() -> None:
 
     # ---- overlapped --------------------------------------------------------
     ov: dict = {"label": "overlapped A->B (prefetch during A's generation)"}
-    eng = PrefetchEngine(ceiling_gb=args.ceiling_gb)
-    kickoff = eng.prefetch(args.model_a, args.port_base + 10)
-    ov["a_prefetch_kicked"] = kickoff
-    eng.swap(args.model_a, args.port_base + 10)  # wait for A via promote/fallback
+    eng = PrefetchEngine(ceiling_gb=args.ceiling_gb, port_base=args.port_base + 20)
+    eng.swap(args.model_a, args.port_base + 20)  # sequential start of A (nothing prefetched yet)
     srv_a = eng.active()
     assert srv_a is not None, "active server missing after swap"
     g = _generate(srv_a)
     ov["a_gen_s"] = g["total_s"]
     # kick off B's load WHILE A is generating (the point of G2.2)
     t_kick = time.monotonic()
-    kicked = eng.prefetch(args.model_b, args.port_base + 11)
+    kicked = eng.prefetch(args.model_b)
     ov["b_prefetch_kicked"] = kicked
     # finish A's generation with B loading in parallel
     g2 = _generate(srv_a, prompt="Write a Python function that returns 43.")
     ov["a_second_gen_s"] = g2["total_s"]
     ov["b_load_started_during_a"] = round(time.monotonic() - t_kick, 3)
-    swap_stats = eng.swap(args.model_b, args.port_base + 11)
+    swap_stats = eng.swap(args.model_b, args.port_base + 21)
     ov.update(swap_stats)
     ov["swap_to_first_token_s"] = round(swap_stats["swap_s"], 3)
     ov["total_a_plus_swap_s"] = round(ov["a_gen_s"] + ov["a_second_gen_s"] + swap_stats["swap_s"], 3)
