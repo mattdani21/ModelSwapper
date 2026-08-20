@@ -40,10 +40,13 @@ Otherwise: **keep working.** Silent progress.
 ## 5. Commands
 
 ```bash
-uv run --with pytest pytest capsule/tests benchmarks/harness/tests   # quality gate
+uv run --with pytest pytest capsule/tests benchmarks/harness/tests pipeline/tests   # quality gate
 python3 benchmarks/harness/validate_tasks.py --tasks-dir benchmarks/tasks   # structural check
 python3 benchmarks/harness/validate_tasks.py --full   # RED/GREEN verification of every task (slow)
-python3 runtime/swap_runner.py --help                 # swap baseline measurement
+python3 runtime/swap_runner.py --help                 # swap baseline measurement (G0.1/G0.2)
+python3 runtime/overlap.py --help                    # overlap engine A/B measurement (G2.2)
+python3 benchmarks/harness/run_ablation.py --help    # capsule vs naive vs single ablation (G2.3)
+python3 pipeline/run_pipeline.py --backend overlap   # pipeline on the two-slot prefetch engine (G2.2)
 ```
 
 ## 6. Layout
