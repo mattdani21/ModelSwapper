@@ -30,6 +30,10 @@ SMOKE_ONLY="${1:-}"
 TOTAL_GB="$(sysctl -n hw.memsize | awk '{print int($1/1073741824)}')"
 echo "== ModelSwapper T0 run on $(hostname) | RAM ${TOTAL_GB}GB | quant ${Q} | $(date)"
 
+# keep the Mac awake for the whole run (overnight runs)
+caffeinate -dims -w $$ &>/dev/null &
+echo "== caffeinate active (Mac won't sleep while this runs)"
+
 # --- 1. llama-server (Metal) -------------------------------------------------
 if ! command -v llama-server >/dev/null 2>&1; then
   echo "== installing llama.cpp via brew (one-time)..."

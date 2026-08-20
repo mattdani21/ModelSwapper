@@ -33,6 +33,10 @@ TOTAL_GB="$(sysctl -n hw.memsize | awk '{print int($1/1073741824)}')"
 echo "== ModelSwapper T4-16 run on $(hostname) | RAM ${TOTAL_GB}GB | code=${CODE_MODEL} | $(date)"
 [ "$TOTAL_GB" -ge 16 ] || { echo "ERROR: this tier needs >= 16 GB RAM (found ${TOTAL_GB} GB)"; exit 1; }
 
+# keep the Mac awake for the whole run (overnight runs)
+caffeinate -dims -w $$ &>/dev/null &
+echo "== caffeinate active (Mac won't sleep while this runs)"
+
 # --- 1. llama-server (Metal) -------------------------------------------------
 if ! command -v llama-server >/dev/null 2>&1; then
   echo "== installing llama.cpp via brew (one-time)..."
