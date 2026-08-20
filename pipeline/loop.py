@@ -64,6 +64,7 @@ def _log_phase(
         "evict_s": out.evict_s if out else None,
         "ttft_s": out.ttft_s if out else None,
         "total_s": out.total_s if out else None,
+        "peak_rss_kb": out.peak_rss_kb if out else None,
     }
     if extra:
         entry.update(extra)
@@ -177,9 +178,14 @@ def run_task(
 
         # CODE
         try:
+            # feedback is bounded (600 chars) in BOTH the capsule decision and
+            # the prompt — an unbounded critic output can overflow the context
+            # on retries (observed: HTTP 400 at 4096 ctx with a 2048-token
+            # critic response). The capsule's own convention is 600.
+            bounded_feedback = feedback[:600] if feedback is not None else None
             out = _generate(
                 models["code"],
-                code_prompt(task_id, problem, starter, plan, feedback,
+                code_prompt(task_id, problem, starter, plan, bounded_feedback,
                             transcript=transcript if handoff == "naive" else None),
                 max_tokens, temperature, port_counter[0],
                 prefetch_model=models["review"],  # G2.2: load the critic while CODE writes
