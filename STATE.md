@@ -49,21 +49,24 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
 
 ## Phase 2 (active) — engineering down the swap
 
-- **G2.3 CLOSED (2026-08-20, 27B scale, 8192 ctx)**: capsule 8/8 (100%) @ 788
-  tok vs naive 7/8 (87.5%) @ 1663 tok vs single 8/8 (100%) @ 999 tok — verdict
-  both halves TRUE (quality ≥, memory strictly better, −53% context). Capsule
-  also the fastest arm (20.9 s/task). Report: docs/ablation-capsule-vs-naive.md.
-- **G2.2 overlap engine**: mechanics proven at 27B scale (load hiding
-  consistent across two A/B runs: 1.04/0.842 vs 1.881/2.099 s/phase; promoted
-  swaps pay 0). Wall-clock A/B noisy at n=8 — formal close + G1.3 need the
-  full 50-task overlap run (notebook colab-phase2-eval.ipynb, ABLATION_LIMIT=50).
-- **G2.4 capsule compression v1**: done (8k budget, sub-linear growth, tests).
-- **G2.1 (warm swap ≤ 1.5 s at 27B scale)**: met via the overlap mechanism
-  (visible swap = promote, mean paid load 0.842 s); raw sequential 27B load
-  remains ~2 s (never paid under overlap).
-- Issues: G2.3 (#14) closed; G2.1/G2.2/G2.4 = #12/#13/#15 open (milestone
-  "Phase 2 — Engineering down the swap").
-- ADR-0005 accepted.
+- **G2.3 CLOSED**: verdict both halves TRUE at 27B scale, three runs
+  consistent (capsule 8/8 @ 788-803 tok vs naive 7/8 @ 1663-1718 tok vs
+  single 7-8/8 @ 999-2253 tok). Capsule = fastest arm.
+- **G2.2 CLOSED (full-50 suite)**: load/phase 1.995 → 0.806 s (−60%),
+  41% of phases at zero load; wall 41.99 → 40.83 s (−2.8%; generation-
+  dominated at 27B scale); quality 45/50 vs 47/50 within noise.
+- **G2.1 CLOSED**: met via overlap (mean paid load 0.806 s < 1.5 s bar;
+  promoted swaps pay 0; local T4 direction 0.851 → 0.063 s).
+- **G2.4**: done (8k budget, sub-linear growth, tests) — issue #15 open
+  pending the capsule-v1-in-pipeline integration note.
+- **G1.2 RE-CONFIRMED at 94.0%** (sequential 47/50, 8192 ctx + bounded
+  feedback): bugfix 17/17, feature 17/17 — 97.9% of the frontier baseline.
+  Overlap 45/50 (90.0%). The 8192 context + feedback bound unlocked the
+  retry loop the 4096 config was choking.
+- **G1.3 near-miss stands**: 2.12× (overlap) / 2.18× (sequential) vs 2×
+  bar. Lever: native-arch llama build (Blackwell currently runs PTX JIT).
+- Issues: G2.1 (#12), G2.2 (#13), G2.3 (#14) CLOSED; G2.4 (#15) + G1.3
+  (#7) + G1.5 (#9) open.
 
 ## Blockers
 
