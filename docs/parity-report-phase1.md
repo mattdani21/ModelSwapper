@@ -72,3 +72,32 @@ frontier model would likely push the baseline itself higher.
    work (G2.3) targets whether context-preservation lifts it further.
 3. Remaining Phase 1 items: G1.3 (1.4 s gap — A100 rerun), G1.5 (T0 memory
    ceiling on the 24 GB Air), confirmation run.
+
+---
+
+## Addendum — temperature sensitivity (confirmation run, 2026-08-20)
+
+Second-temperature confirmation (0.6 vs the 0.2 operating point), run on an
+RTX PRO 6000 Blackwell 97.9GB (multi-arch build, same model set):
+
+| Metric | 0.2 (L4) | 0.6 (Blackwell) |
+|---|---|---|
+| Pass rate | **40/50 (80.0%)** | 35/50 (70.0%) |
+| bugfix | 12/17 | 14/17 |
+| feature | 16/17 | **11/17** |
+| refactor | 12/16 | 10/16 |
+| Mean wall | 40.0s | 43.4s |
+| Retries needed | 10 | 17 |
+
+**Finding: the result is temperature-sensitive, not luck-dependent.**
+- Agreement between temps: 33/50; stable core (pass at BOTH): **29/50 (58%)**
+- Higher temperature helps bugfix (+2) but collapses feature (−5) — spec-
+  adherence tasks need determinism; 0.2 is the correct operating point.
+- G1.2 stands as MET **at the 0.2 operating point** (the documented default).
+  The claim must be stated with that qualifier; the stable-core floor (58%)
+  is the honest conservative reading.
+
+**Remaining:** one variance-confirmation run at 0.2 on the big GPU (same temp,
+different session/hardware) to bound run-to-run noise, then G1.2 closes.
+G1.3 remains a near-miss at both temps (40.0/43.4s vs 38.6s bar) — retries
+dominate the tail; resident-mode or per-category temperatures are the levers.
