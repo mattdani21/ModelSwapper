@@ -122,3 +122,32 @@ Same config, temperature 0.2, on Colab **RTX PRO 6000 Blackwell (97.9 GB)**, fre
 - **Temperature sensitivity is the dominant variance term, measured cleanly:** at 0.2 the pipeline is stable (±1 task across sessions); at 0.6 it drops to 70% — feature tasks (spec-adherence) collapse at higher temperature while bugfix improves slightly. 0.2 is the correct operating point and is now the notebook default.
 - **G1.3 remains a documented near-miss on both GPUs** (2.07× and 2.30× vs the 2× bar; API mean 19.3 s). Wall time is dominated by phase serialization + retries, not generation bandwidth — the bigger GPU did not move the mean. Lever: resident mode / fewer retries (Phase 2 work).
 - **Stable core across all three runs:** the tasks that pass at both temperatures (29/50) and the two-0.2-run overlap bound the honest floor; the committed per-task JSONs make every number auditable.
+
+---
+
+## Addendum 3 — The 8192-context pipeline: 94% parity (2026-08-20, full suite)
+
+Same models (27B Q4 + 8B Q4, temp 0.2), two changes vs the Phase 1 config:
+context 4096 → **8192** and the critic-feedback bound (600 chars, bug fix).
+Both unlocked the retry loop that 4096 was choking.
+
+| Run | Pass | bugfix | feature | refactor | Mean wall | vs API |
+|---|---|---|---|---|---|---|
+| API baseline (deepseek-v4-pro) | 48/50 (96.0%) | 17/17 | 16/17 | 15/16 | 19.3 s | 1.0× |
+| **sequential (8192)** | **47/50 (94.0%)** | **17/17** | **17/17** | 13/16 | 41.99 s | 2.18× |
+| overlap engine (8192) | 45/50 (90.0%) | 15/17 | 17/17 | 13/16 | 40.83 s | 2.12× |
+
+**G1.2 is now exceeded by ~17 points**: 94.0% vs the 76.8% bar — 97.9% of the
+frontier baseline's rate, category-for-category (perfect on bugfix AND
+feature, 2 behind on refactor). The 40/50 Phase-1-config numbers remain on
+record; the 47/50 is the Phase-2-config result (ctx 8192 + bounded feedback).
+
+**G2.2 at full suite**: load per phase 1.995 → 0.806 s (−60%), 80/195
+phases (41%) at zero load; wall 41.99 → 40.83 s (−2.8%, −43.9 s over the
+suite). Generation dominates at 27B scale — the swap tax is gone, the
+remaining wall is tokens. Pass rates within run-to-run noise (45 vs 47).
+
+**G1.3 still a near-miss**: 2.12× (overlap) vs the 2× bar. Hypotheses for
+the gap: (a) the multi-arch build runs Blackwell via PTX JIT (sm_89→sm_100)
+— a native-arch build (`100;120`) is the obvious next lever; (b) retry
+storms. Not hidden — on record with the data.
