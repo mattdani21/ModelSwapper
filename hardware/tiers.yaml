@@ -39,3 +39,13 @@ tiers:
     measured: true
     max_specialist: "4B class at Q4 (measured: 8B Q4_K_M fails Metal allocation on 8 GB; 4B Q4_K_M runs at ~1.5-1.7 GB RSS)"
     note: "the long-term moat — hyperscalers cannot follow here"
+  T4_16:
+    hardware: "MacBook 16 GB (very-small-Mac tier)"
+    total_ram_gb: 16
+    resident: "one specialist at a time; aggressive swap (overlap ceiling 13 GB refuses two residents)"
+    policy: "aggressive swap"
+    peak_memory_ceiling_gb: 13
+    measured: false
+    max_specialist: "Coder-30B-A3B UD-IQ2_M (10.8 GB, peak ~14 GB) or 14B Q4_K_M (9.0 GB, peak ~11 GB)"
+    specialist_set: "reason=Qwen3-14B-Q4_K_M, code=Coder-30B-A3B-UD-IQ2_M (alt: 14B Q4), review=Qwen3-8B-Q4_K_M; ctx 8192"
+    runbook: "hardware/t16_mac_run.sh (smoke -> full 50; memory CSV; CODE_MODEL=qwen14b alternative)"
