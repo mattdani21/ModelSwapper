@@ -108,3 +108,39 @@ memory verdict is not settled by this run.
 - **8192-context rerun** (fresh tab, notebook as committed) to settle the
   naive-arm quality + memory verdict cleanly.
 - **50-task overlap run** to close G2.2 formally and G1.3 (projected 1.80×).
+
+## 27B-scale rerun at 8192 context (2026-08-20, RTX PRO 6000) — THE DECISIVE RUN
+
+Files: `ablation-colab-27b-20260820-2-8192.json`, `sequential-colab-27b-20260820-2-8192.json`,
+`overlap-colab-27b-20260820-2-8192.json`.
+
+| Arm | Pass | Wall/task | Context | RSS |
+|---|---|---|---|---|
+| **capsule** | **8/8 (100%)** | **20.9 s** | **788 tok** | 1.51 GB |
+| naive | 7/8 (87.5%) | 53.8 s | 1663 tok | 1.36 GB |
+| single | 8/8 (100%) | 31.7 s | 999 tok | 1.87 GB |
+
+Verdict: `capsule_ge_naive_quality: true` AND `capsule_strictly_better_memory: true`.
+
+**G2.3 is decided: the context-preservation thesis holds at 27B scale.**
+- Quality: capsule ≥ naive (100 vs 87.5), and naive's 1663-tok context is now
+  real (it completed retries at 8192 — no death artifact).
+- Memory: capsule carries **53% less context** (788 vs 1663 tok) than the raw
+  transcript at equal-or-better quality.
+- Bonus: capsule is the FASTEST arm (20.9 s vs 53.8 naive vs 31.7 single) —
+  the 8B critic + structured handoff beat both the transcript pipeline and
+  the monolithic 27B resident on this subset.
+- single-model (27B resident) ties on quality and pays the biggest RSS
+  (1.87 GB) — the "one giant model" comparator, as designed.
+
+### Overlap A/B in the same run (8 tasks)
+
+| Backend | Pass | Mean wall | Mean load |
+|---|---|---|---|
+| sequential | 8/8 (100%) | 29.83 s | 2.099 s |
+| overlap | 7/8 (87.5%) | 39.46 s | **0.842 s** |
+
+The load-hiding is consistent across both runs (1.04 / 0.842 vs 1.881 / 2.099 —
+~60% of load time eliminated; promoted swaps pay 0). The wall-clock A/B is
+noisy at n=8: a single retry storm (bugfix-03, 3 iterations, 147.8 s) swings
+the mean. G2.2's formal wall-clock close and G1.3 need the full 50-task run.
