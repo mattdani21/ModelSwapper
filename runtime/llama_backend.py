@@ -75,6 +75,7 @@ class LlamaBackend(ModelBackend):
             ttft_s=ttft,
             total_s=round(time.monotonic() - t0, 3),
             load_s=self._server.load_s,
+            peak_rss_kb=self._server.peak_rss_kb,
         )
 
     def stop(self) -> float:

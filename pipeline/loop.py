@@ -87,7 +87,20 @@ def run_task(
     temperature: float = 0.2,
     port_base: int = 8900,
     capsule_dir: Optional[str] = None,
+    handoff: str = "capsule",
+    resident: bool = False,
 ) -> TaskRunResult:
+    """Run the reason->code->review loop for one task.
+
+    handoff='capsule' (default): the Context Capsule is the only state carried
+        between phases (Phase 1 semantics, ADR-0002).
+    handoff='naive': prior phase outputs are carried as a FULL VERBATIM
+        transcript in every prompt (the G2.3 ablation comparator).
+    resident=True: one backend (models['reason']) serves every phase with no
+        swaps at all — the single-model baseline arm of the G2.3 ablation.
+    """
+    if handoff not in ("capsule", "naive"):
+        raise ValueError(f"handoff must be 'capsule' or 'naive', got {handoff!r}")
     task_id = os.path.basename(task_dir)
     category = os.path.basename(os.path.dirname(task_dir))
     with open(os.path.join(task_dir, "problem.md")) as f:
@@ -100,8 +113,42 @@ def run_task(
     phases: list = []
     plan = ""
     feedback: Optional[str] = None
+    transcript = ""  # naive handoff accumulator (verbatim, no roll-up)
     t0 = time.monotonic()
     port_counter = [port_base]
+
+    resident_backend: Optional[ModelBackend] = None
+    if resident:
+        resident_backend = backend_factory(models["reason"], port_counter[0])
+        resident_backend.start()
+        port_counter[0] += 1
+
+    def _generate(
+        model: str, prompt: str, max_tokens: int, temperature: float, port: int
+    ) -> GenerationResult:
+        if resident_backend is not None:
+            out = resident_backend.generate(
+                prompt, max_tokens=max_tokens, temperature=temperature
+            )
+            out.evict_s = 0.0
+            return out
+        backend = backend_factory(model, port)
+        out: Optional[GenerationResult] = None
+        try:
+            backend.start()
+            out = backend.generate(
+                prompt, max_tokens=max_tokens, temperature=temperature
+            )
+            return out
+        finally:
+            evict_s = backend.stop()
+            if out is not None:
+                out.evict_s = evict_s
+
+    def _context_tokens_est() -> int:
+        if handoff == "naive":
+            return max(1, len(transcript) // 4)
+        return max(1, capsule.bytes() // 4)
 
     result = {"passed": False, "tests_passed": 0, "tests_total": 0, "error": None}
     iteration = 0
@@ -110,7 +157,7 @@ def run_task(
         if iteration == 0:
             try:
                 out = _generate(
-                    backend_factory, models["reason"], reason_prompt(task_id, problem, starter),
+                    models["reason"], reason_prompt(task_id, problem, starter),
                     max_tokens, temperature, port_counter[0],
                 )
             except Exception as e:  # noqa: BLE001
@@ -118,13 +165,18 @@ def run_task(
                 break
             plan = out.text
             capsule.set_plan(parse_plan(plan))
-            _log_phase(capsule, phases, "reason", models["reason"], out, "ok")
+            if handoff == "naive":
+                transcript += f"\n[REASON PLAN]\n{plan}\n"
+            _log_phase(capsule, phases, "reason", models["reason"], out, "ok",
+                       extra={"context_tokens_est": _context_tokens_est()})
             port_counter[0] += 1
 
         # CODE
         try:
             out = _generate(
-                backend_factory, models["code"], code_prompt(task_id, problem, starter, plan, feedback),
+                models["code"],
+                code_prompt(task_id, problem, starter, plan, feedback,
+                            transcript=transcript if handoff == "naive" else None),
                 max_tokens, temperature, port_counter[0],
             )
         except Exception as e:  # noqa: BLE001
@@ -132,7 +184,10 @@ def run_task(
             break
         candidate = extract_code(out.text)
         capsule.add_artifact("solution.py", candidate, kind="code")
-        _log_phase(capsule, phases, "code", models["code"], out, "ok")
+        if handoff == "naive":
+            transcript += f"\n[CODE ATTEMPT]\n{candidate}\n"
+        _log_phase(capsule, phases, "code", models["code"], out, "ok",
+                   extra={"context_tokens_est": _context_tokens_est()})
         port_counter[0] += 1
 
         # REVIEW (mechanical — the sacred grader)
@@ -143,7 +198,8 @@ def run_task(
         _log_phase(
             capsule, phases, "review", "grader", None,
             "ok" if passed else "retry",
-            extra={"tests_passed": g["tests_passed"], "tests_total": g["tests_total"]},
+            extra={"tests_passed": g["tests_passed"], "tests_total": g["tests_total"],
+                   "context_tokens_est": _context_tokens_est()},
         )
         if passed:
             result["passed"] = True
@@ -157,8 +213,9 @@ def run_task(
         # CRITIC (model) -> feedback for the next CODE attempt
         try:
             out2 = _generate(
-                backend_factory, models["review"],
-                critic_prompt(task_id, problem, candidate, g["output_tail"]),
+                models["review"],
+                critic_prompt(task_id, problem, candidate, g["output_tail"],
+                              transcript=transcript if handoff == "naive" else None),
                 max_tokens, temperature, port_counter[0],
             )
         except Exception as e:  # noqa: BLE001
@@ -166,9 +223,15 @@ def run_task(
             break
         feedback = out2.text
         capsule.add_decision("review", "retry", feedback[:600])
-        _log_phase(capsule, phases, "critic", models["review"], out2, "ok")
+        if handoff == "naive":
+            transcript += f"\n[CRITIC FEEDBACK]\n{feedback}\n"
+        _log_phase(capsule, phases, "critic", models["review"], out2, "ok",
+                   extra={"context_tokens_est": _context_tokens_est()})
         port_counter[0] += 1
         iteration += 1
+
+    if resident_backend is not None:
+        resident_backend.stop()
 
     if capsule_dir:
         os.makedirs(capsule_dir, exist_ok=True)

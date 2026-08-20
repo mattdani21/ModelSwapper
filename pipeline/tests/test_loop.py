@@ -92,3 +92,66 @@ def test_parse_plan_extracts_steps():
 def test_parse_plan_falls_back_to_raw():
     steps = parse_plan("just implement it carefully")
     assert len(steps) == 1
+
+
+def test_naive_handoff_carries_verbatim_transcript():
+    """G2.3 arm: naive mode puts the full transcript in every later prompt."""
+    prompts_seen = {"code": [], "critic": []}
+
+    def code(prompt):
+        prompts_seen["code"].append(prompt)
+        if "Reviewer feedback" in prompt and "[CODE ATTEMPT]" in prompt:
+            return _reference_text()
+        return "def most_common_word(text):\n    return None\n"
+
+    def critic(prompt):
+        prompts_seen["critic"].append(prompt)
+        assert "[REASON PLAN]" in prompt and "[CODE ATTEMPT]" in prompt
+        return "implement the real algorithm"
+
+    r = run_task(EXAMPLE, MODELS, _make_factory({"code": code, "review": critic}),
+                 max_iterations=3, handoff="naive")
+    assert r.passed is True
+    assert "[REASON PLAN]" in prompts_seen["code"][0]
+    assert "[CODE ATTEMPT]" in prompts_seen["code"][1]
+    ctxs = [p.get("context_tokens_est") for p in r.phases if p.get("context_tokens_est")]
+    assert ctxs and all(c > 0 for c in ctxs)
+    # naive context must be strictly bigger than the capsule's at the same point
+    assert ctxs[-1] >= ctxs[0]
+
+
+def test_resident_mode_uses_one_backend_no_swaps():
+    """G2.3 arm: single-model baseline — same backend instance every phase."""
+    from runtime.fake_backend import FakeBackend
+    instances = []
+
+    orig_init = FakeBackend.__init__
+
+    def spy_init(self, model_path, *a, **kw):
+        instances.append(model_path)
+        orig_init(self, model_path, *a, **kw)
+
+    # resident mode uses models["reason"] for every phase — that model's
+    # behaviour must therefore be the code expert in this test
+    def factory(model_path: str, port: int) -> FakeBackend:
+        return FakeBackend(model_path, callable_resp=lambda prompt: _reference_text())
+
+    FakeBackend.__init__ = spy_init
+    try:
+        r = run_task(EXAMPLE, MODELS, factory, max_iterations=3, resident=True)
+    finally:
+        FakeBackend.__init__ = orig_init
+    assert r.passed is True
+    assert len(instances) == 1, f"resident mode must create exactly one backend, got {len(instances)}"
+    assert r.phases[0]["load_s"] is not None
+    # no eviction between phases: every model phase reports evict_s == 0.0
+    model_evicts = [p["evict_s"] for p in r.phases if p["role"] != "review"]
+    assert all(e == 0.0 for e in model_evicts), f"unexpected evictions: {model_evicts}"
+
+
+def test_handoff_invalid_value_rejected():
+    try:
+        run_task(EXAMPLE, MODELS, _make_factory({}), handoff="banana")
+        assert False, "should have raised"
+    except ValueError:
+        pass

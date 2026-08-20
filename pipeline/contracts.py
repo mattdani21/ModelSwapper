@@ -16,6 +16,7 @@ class GenerationResult:
     total_s: float = 0.0
     load_s: Optional[float] = None
     evict_s: Optional[float] = None
+    peak_rss_kb: Optional[int] = None
 
 
 class ModelBackend(ABC):

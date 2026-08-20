@@ -71,6 +71,10 @@ def main() -> None:
     ap.add_argument("--port-base", type=int, default=8900)
     ap.add_argument("--capsule-dir", default="", help="write per-task Context Capsules here")
     ap.add_argument("--categories", default="bugfix,feature,refactor")
+    ap.add_argument("--handoff", choices=["capsule", "naive"], default="capsule",
+                    help="capsule = structured handoff (Phase 1); naive = full verbatim transcript (G2.3 ablation)")
+    ap.add_argument("--resident", action="store_true",
+                    help="one model (reason) serves every phase, no swaps — single-model ablation arm")
     args = ap.parse_args()
 
     models = json.loads(args.models_json)
@@ -99,6 +103,8 @@ def main() -> None:
         "temperature": args.temperature,
         "tasks_total": len(tasks),
         "mode": "swap-per-phase (each phase loads its specialist fresh, evicts after)",
+        "handoff": args.handoff,
+        "resident": args.resident,
     }
 
     results = []
@@ -116,6 +122,8 @@ def main() -> None:
                 temperature=args.temperature,
                 port_base=args.port_base,
                 capsule_dir=args.capsule_dir or None,
+                handoff=args.handoff,
+                resident=args.resident,
             )
         except Exception as e:  # noqa: BLE001
             print(f"    -> ERROR {e}", flush=True)

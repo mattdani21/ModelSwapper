@@ -40,7 +40,8 @@ def reason_prompt(task_id: str, problem: str, starter: str) -> str:
 
 
 def code_prompt(
-    task_id: str, problem: str, starter: str, plan: str, feedback: Optional[str]
+    task_id: str, problem: str, starter: str, plan: str, feedback: Optional[str],
+    transcript: Optional[str] = None,
 ) -> str:
     parts = [
         f"# Task: {task_id}\n\n{problem}\n\n"
@@ -51,17 +52,23 @@ def code_prompt(
     if feedback is not None:
         hint = feedback or "(none provided — re-examine the task spec and the failing tests)"
         parts.append(f"# Reviewer feedback from the last attempt\n{hint}")
+    if transcript:
+        parts.append(f"# Full transcript of prior phases (naive handoff)\n{transcript}")
     parts.append("Produce the complete new solution.py (code only).")
     return "\n\n".join(parts)
 
 
-def critic_prompt(task_id: str, problem: str, candidate: str, test_output_tail: str) -> str:
-    return (
+def critic_prompt(task_id: str, problem: str, candidate: str, test_output_tail: str,
+                  transcript: Optional[str] = None) -> str:
+    parts = [
         f"# Task: {task_id}\n\n{problem}\n\n"
         f"# Candidate solution.py\n```python\n{candidate}\n```\n\n"
-        f"# Test output (tail)\n```\n{test_output_tail}\n```\n\n"
-        "Diagnose the failure and give the CODE phase concrete fix instructions."
-    )
+        f"# Test output (tail)\n```\n{test_output_tail}\n```"
+    ]
+    if transcript:
+        parts.append(f"# Full transcript of prior phases (naive handoff)\n{transcript}")
+    parts.append("Diagnose the failure and give the CODE phase concrete fix instructions.")
+    return "\n\n".join(parts)
 
 
 def parse_plan(text: str) -> list:
