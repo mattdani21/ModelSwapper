@@ -29,10 +29,16 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
 - **Phase 1 parity target derived:** ≥ 80% of 96% → pipeline must pass ≥ 76.8% absolute (G1.2)
 - **Phase 1 result (2026-08-19, Colab L4, 27B Q4 + 8B Q4, swap-per-phase):**
   **40/50 = 80.0% — G1.2 MET** (bar 76.8%). bugfix 12/17, feature 16/17
-  (won feature-08 vs baseline), refactor 12/16. Mean wall 40.0s (2.07× API,
-  G1.3 near-miss by 1.4s), mean load 1.96s, mean evict 0.17s. Retry loop
-  recovered 10 tasks. Report: docs/parity-report-phase1.md. G1.3 pending
-  (A100 rerun or resident-mode), G1.5 pending 24 GB Air measurement.
+  refactor 12/16; mean wall 40.0s = 2.07× API (bar 2× → G1.3 near-miss by
+  1.4s), mean load 1.96s, mean evict 0.17s. Retry loop recovered 10 tasks.
+  Report: docs/parity-report-phase1.md.
+- **Confirmation run (2026-08-20, Colab RTX PRO 6000 97.9GB, same config, temp 0.2):**
+  **39/50 = 78.0% — G1.2 CONFIRMED** (two independent sessions/hardware at the
+  operating point: 80.0% + 78.0%). bugfix 14/17, feature 14/17, refactor 11/16;
+  mean wall 44.4s = 2.30× API, mean load 2.18s, mean evict 0.21s. Temperature
+  sensitivity measured (0.6 → 35/50, feature collapses): 0.2 is the operating
+  point. G1.2 CLOSED. G1.3 near-miss stands on both GPUs (2.07× / 2.30× vs 2×
+  bar) — lever is resident-mode/fewer retries (Phase 2). G1.5 pending 24 GB Air.
 
 ## Broken / incomplete
 

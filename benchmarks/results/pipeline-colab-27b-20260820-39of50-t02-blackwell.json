@@ -1,0 +1,2718 @@
+{
+  "run_at": "2026-08-20T08:31:55Z",
+  "models": {
+    "reason": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+    "code": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+    "review": "/content/models/Qwen3-8B-Q4_K_M.gguf"
+  },
+  "max_iterations": 3,
+  "max_tokens": 2048,
+  "temperature": 0.2,
+  "tasks_total": 50,
+  "mode": "swap-per-phase (each phase loads its specialist fresh, evicts after)",
+  "results": [
+    {
+      "task_id": "bugfix-01",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1515,
+          "load_s": 26.278,
+          "evict_s": 1.466,
+          "ttft_s": 18.779,
+          "total_s": 43.125
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 58,
+          "load_s": 2.103,
+          "evict_s": 0.214,
+          "ttft_s": 0.563,
+          "total_s": 1.415
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 4856,
+      "wall_clock_s": 75.29,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-02",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1075,
+          "load_s": 2.068,
+          "evict_s": 0.214,
+          "ttft_s": 0.145,
+          "total_s": 15.836
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 59,
+          "load_s": 2.081,
+          "evict_s": 0.214,
+          "ttft_s": 0.444,
+          "total_s": 1.303
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 6,
+          "tests_total": 6
+        }
+      ],
+      "capsule_bytes": 4454,
+      "wall_clock_s": 22.23,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-03",
+      "category": "bugfix",
+      "passed": false,
+      "iterations": 2,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.088,
+          "evict_s": 0.164,
+          "ttft_s": 0.145,
+          "total_s": 30.067
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1795,
+          "load_s": 2.067,
+          "evict_s": 0.214,
+          "ttft_s": 0.703,
+          "total_s": 27.107
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1814,
+          "load_s": 9.431,
+          "evict_s": 0.164,
+          "ttft_s": 5.127,
+          "total_s": 14.236
+        }
+      ],
+      "capsule_bytes": 13881,
+      "wall_clock_s": 88.47,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "bugfix-04",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 959,
+          "load_s": 2.091,
+          "evict_s": 0.164,
+          "ttft_s": 0.134,
+          "total_s": 14.126
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 53,
+          "load_s": 2.072,
+          "evict_s": 0.214,
+          "ttft_s": 0.408,
+          "total_s": 1.178
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 6,
+          "tests_total": 6
+        }
+      ],
+      "capsule_bytes": 3682,
+      "wall_clock_s": 20.36,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-05",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 460,
+          "load_s": 2.077,
+          "evict_s": 0.214,
+          "ttft_s": 0.132,
+          "total_s": 6.84
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 35,
+          "load_s": 2.075,
+          "evict_s": 0.214,
+          "ttft_s": 0.271,
+          "total_s": 0.779
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 6,
+          "tests_total": 6
+        }
+      ],
+      "capsule_bytes": 3021,
+      "wall_clock_s": 12.71,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-06",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.087,
+          "evict_s": 0.214,
+          "ttft_s": 0.186,
+          "total_s": 30.123
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1637,
+          "load_s": 2.076,
+          "evict_s": 0.214,
+          "ttft_s": 0.746,
+          "total_s": 24.828
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 7,
+          "tests_total": 7
+        }
+      ],
+      "capsule_bytes": 5266,
+      "wall_clock_s": 60.06,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-07",
+      "category": "bugfix",
+      "passed": false,
+      "iterations": 2,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.071,
+          "evict_s": 0.164,
+          "ttft_s": 0.163,
+          "total_s": 30.081
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1721,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.723,
+          "total_s": 26.04
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1939,
+          "load_s": 1.087,
+          "evict_s": 0.164,
+          "ttft_s": 0.2,
+          "total_s": 9.934
+        }
+      ],
+      "capsule_bytes": 11703,
+      "wall_clock_s": 74.79,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "bugfix-08",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.074,
+          "evict_s": 0.164,
+          "ttft_s": 0.186,
+          "total_s": 30.11
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1633,
+          "load_s": 2.083,
+          "evict_s": 0.214,
+          "ttft_s": 0.747,
+          "total_s": 24.773
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 6350,
+      "wall_clock_s": 59.94,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-09",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.082,
+          "evict_s": 0.214,
+          "ttft_s": 0.174,
+          "total_s": 30.092
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 95,
+          "load_s": 2.086,
+          "evict_s": 0.214,
+          "ttft_s": 0.745,
+          "total_s": 2.134
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 7,
+          "tests_total": 7
+        }
+      ],
+      "capsule_bytes": 6079,
+      "wall_clock_s": 37.34,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-10",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1061,
+          "load_s": 2.078,
+          "evict_s": 0.214,
+          "ttft_s": 0.145,
+          "total_s": 15.624
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 412,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.445,
+          "total_s": 6.456
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 6,
+          "tests_total": 6
+        }
+      ],
+      "capsule_bytes": 5050,
+      "wall_clock_s": 27.19,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-11",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1,
+          "load_s": 2.076,
+          "evict_s": 0.214,
+          "ttft_s": null,
+          "total_s": 0.156
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1038,
+          "load_s": 2.084,
+          "evict_s": 0.214,
+          "ttft_s": 0.163,
+          "total_s": 15.303
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 7,
+          "tests_total": 7
+        }
+      ],
+      "capsule_bytes": 2555,
+      "wall_clock_s": 20.56,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-12",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.076,
+          "evict_s": 0.214,
+          "ttft_s": 0.163,
+          "total_s": 30.088
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1721,
+          "load_s": 2.084,
+          "evict_s": 0.214,
+          "ttft_s": 0.723,
+          "total_s": 26.034
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 7,
+          "tests_total": 7
+        }
+      ],
+      "capsule_bytes": 5717,
+      "wall_clock_s": 61.23,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-13",
+      "category": "bugfix",
+      "passed": false,
+      "iterations": 3,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.085,
+          "evict_s": 0.214,
+          "ttft_s": 0.164,
+          "total_s": 30.085
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1705,
+          "load_s": 2.083,
+          "evict_s": 0.214,
+          "ttft_s": 0.731,
+          "total_s": 25.81
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 669,
+          "load_s": 1.081,
+          "evict_s": 0.164,
+          "ttft_s": 0.2,
+          "total_s": 3.533
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 991,
+          "load_s": 2.073,
+          "evict_s": 0.214,
+          "ttft_s": 0.943,
+          "total_s": 15.543
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 842,
+          "load_s": 1.081,
+          "evict_s": 0.164,
+          "ttft_s": 0.146,
+          "total_s": 4.292
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 822,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.976,
+          "total_s": 13.09
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        }
+      ],
+      "capsule_bytes": 21646,
+      "wall_clock_s": 105.77,
+      "error": "budget exhausted after 3 code attempts"
+    },
+    {
+      "task_id": "bugfix-14",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1033,
+          "load_s": 2.074,
+          "evict_s": 0.214,
+          "ttft_s": 0.156,
+          "total_s": 15.227
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 103,
+          "load_s": 2.067,
+          "evict_s": 0.214,
+          "ttft_s": 0.446,
+          "total_s": 1.945
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 10,
+          "tests_total": 10
+        }
+      ],
+      "capsule_bytes": 5144,
+      "wall_clock_s": 22.26,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-15",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.069,
+          "evict_s": 0.164,
+          "ttft_s": 0.154,
+          "total_s": 30.08
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 103,
+          "load_s": 2.078,
+          "evict_s": 0.214,
+          "ttft_s": 0.713,
+          "total_s": 2.22
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 7,
+          "tests_total": 7
+        }
+      ],
+      "capsule_bytes": 4767,
+      "wall_clock_s": 37.35,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-16",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 914,
+          "load_s": 2.068,
+          "evict_s": 0.164,
+          "ttft_s": 0.197,
+          "total_s": 13.536
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 204,
+          "load_s": 2.083,
+          "evict_s": 0.214,
+          "ttft_s": 0.454,
+          "total_s": 3.435
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 9,
+          "tests_total": 9
+        }
+      ],
+      "capsule_bytes": 5362,
+      "wall_clock_s": 22.02,
+      "error": null
+    },
+    {
+      "task_id": "bugfix-17",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 3,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1,
+          "load_s": 2.077,
+          "evict_s": 0.214,
+          "ttft_s": null,
+          "total_s": 0.186
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.186,
+          "total_s": 30.115
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 924,
+          "load_s": 1.086,
+          "evict_s": 0.164,
+          "ttft_s": 0.238,
+          "total_s": 4.881
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 149,
+          "load_s": 2.111,
+          "evict_s": 0.214,
+          "ttft_s": 0.455,
+          "total_s": 2.624
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 7,
+          "tests_total": 9
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 1.081,
+          "evict_s": 0.164,
+          "ttft_s": 0.094,
+          "total_s": 10.12
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 596,
+          "load_s": 2.084,
+          "evict_s": 0.214,
+          "ttft_s": 0.76,
+          "total_s": 9.512
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 9,
+          "tests_total": 9
+        }
+      ],
+      "capsule_bytes": 11443,
+      "wall_clock_s": 70.79,
+      "error": null
+    },
+    {
+      "task_id": "feature-01",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1432,
+          "load_s": 2.074,
+          "evict_s": 0.214,
+          "ttft_s": 0.165,
+          "total_s": 21.061
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 84,
+          "load_s": 2.074,
+          "evict_s": 0.214,
+          "ttft_s": 0.564,
+          "total_s": 1.795
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 11,
+          "tests_total": 11
+        }
+      ],
+      "capsule_bytes": 5434,
+      "wall_clock_s": 27.95,
+      "error": null
+    },
+    {
+      "task_id": "feature-02",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.078,
+          "evict_s": 0.214,
+          "ttft_s": 0.163,
+          "total_s": 30.08
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 79,
+          "load_s": 2.077,
+          "evict_s": 0.214,
+          "ttft_s": 0.723,
+          "total_s": 1.877
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 9,
+          "tests_total": 9
+        }
+      ],
+      "capsule_bytes": 5572,
+      "wall_clock_s": 37.06,
+      "error": null
+    },
+    {
+      "task_id": "feature-03",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.081,
+          "evict_s": 0.164,
+          "ttft_s": 0.174,
+          "total_s": 30.115
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 155,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.745,
+          "total_s": 3.019
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 5374,
+      "wall_clock_s": 38.19,
+      "error": null
+    },
+    {
+      "task_id": "feature-04",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.084,
+          "evict_s": 0.214,
+          "ttft_s": 0.162,
+          "total_s": 30.08
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 105,
+          "load_s": 2.075,
+          "evict_s": 0.214,
+          "ttft_s": 0.723,
+          "total_s": 2.258
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 5333,
+      "wall_clock_s": 37.44,
+      "error": null
+    },
+    {
+      "task_id": "feature-05",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.089,
+          "evict_s": 0.164,
+          "ttft_s": 0.155,
+          "total_s": 30.077
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 83,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.714,
+          "total_s": 1.927
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 5142,
+      "wall_clock_s": 37.07,
+      "error": null
+    },
+    {
+      "task_id": "feature-06",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.082,
+          "evict_s": 0.214,
+          "ttft_s": 0.261,
+          "total_s": 30.203
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 517,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.812,
+          "total_s": 8.403
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 12,
+          "tests_total": 12
+        }
+      ],
+      "capsule_bytes": 7097,
+      "wall_clock_s": 43.72,
+      "error": null
+    },
+    {
+      "task_id": "feature-07",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 13,
+      "tests_total": 13,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 861,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.163,
+          "total_s": 12.721
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 121,
+          "load_s": 2.075,
+          "evict_s": 0.214,
+          "ttft_s": 0.41,
+          "total_s": 2.177
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 13,
+          "tests_total": 13
+        }
+      ],
+      "capsule_bytes": 5525,
+      "wall_clock_s": 20.0,
+      "error": null
+    },
+    {
+      "task_id": "feature-08",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.073,
+          "evict_s": 0.214,
+          "ttft_s": 0.188,
+          "total_s": 30.12
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 288,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.749,
+          "total_s": 4.973
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 10,
+          "tests_total": 10
+        }
+      ],
+      "capsule_bytes": 6756,
+      "wall_clock_s": 40.19,
+      "error": null
+    },
+    {
+      "task_id": "feature-09",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 895,
+          "load_s": 2.072,
+          "evict_s": 0.214,
+          "ttft_s": 0.188,
+          "total_s": 13.25
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 194,
+          "load_s": 2.083,
+          "evict_s": 0.214,
+          "ttft_s": 0.446,
+          "total_s": 3.271
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 10,
+          "tests_total": 10
+        }
+      ],
+      "capsule_bytes": 5912,
+      "wall_clock_s": 21.62,
+      "error": null
+    },
+    {
+      "task_id": "feature-10",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1862,
+          "load_s": 2.074,
+          "evict_s": 0.214,
+          "ttft_s": 0.172,
+          "total_s": 27.375
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 197,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.691,
+          "total_s": 3.578
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 12,
+          "tests_total": 12
+        }
+      ],
+      "capsule_bytes": 5383,
+      "wall_clock_s": 36.05,
+      "error": null
+    },
+    {
+      "task_id": "feature-11",
+      "category": "feature",
+      "passed": false,
+      "iterations": 2,
+      "tests_passed": 4,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1568,
+          "load_s": 2.071,
+          "evict_s": 0.214,
+          "ttft_s": 0.201,
+          "total_s": 23.112
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 201,
+          "load_s": 2.084,
+          "evict_s": 0.214,
+          "ttft_s": 0.667,
+          "total_s": 3.604
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 4,
+          "tests_total": 11
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 1.083,
+          "evict_s": 0.164,
+          "ttft_s": 0.119,
+          "total_s": 10.233
+        }
+      ],
+      "capsule_bytes": 7289,
+      "wall_clock_s": 45.67,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "feature-12",
+      "category": "feature",
+      "passed": false,
+      "iterations": 3,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 939,
+          "load_s": 2.085,
+          "evict_s": 0.214,
+          "ttft_s": 0.164,
+          "total_s": 13.863
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 622,
+          "load_s": 2.077,
+          "evict_s": 0.214,
+          "ttft_s": 0.427,
+          "total_s": 9.521
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 597,
+          "load_s": 1.086,
+          "evict_s": 0.164,
+          "ttft_s": 0.131,
+          "total_s": 3.042
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 639,
+          "load_s": 2.081,
+          "evict_s": 0.214,
+          "ttft_s": 0.607,
+          "total_s": 9.976
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 172,
+          "load_s": 1.081,
+          "evict_s": 0.164,
+          "ttft_s": 0.133,
+          "total_s": 0.971
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1,
+          "load_s": 2.104,
+          "evict_s": 0.214,
+          "ttft_s": null,
+          "total_s": 0.473
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        }
+      ],
+      "capsule_bytes": 11584,
+      "wall_clock_s": 51.29,
+      "error": "budget exhausted after 3 code attempts"
+    },
+    {
+      "task_id": "feature-13",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.087,
+          "evict_s": 0.214,
+          "ttft_s": 0.188,
+          "total_s": 30.121
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 553,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.748,
+          "total_s": 8.866
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 11,
+          "tests_total": 11
+        }
+      ],
+      "capsule_bytes": 6599,
+      "wall_clock_s": 44.1,
+      "error": null
+    },
+    {
+      "task_id": "feature-14",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 695,
+          "load_s": 2.085,
+          "evict_s": 0.214,
+          "ttft_s": 0.172,
+          "total_s": 10.311
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 101,
+          "load_s": 2.082,
+          "evict_s": 0.214,
+          "ttft_s": 0.39,
+          "total_s": 1.859
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 10,
+          "tests_total": 10
+        }
+      ],
+      "capsule_bytes": 5325,
+      "wall_clock_s": 17.28,
+      "error": null
+    },
+    {
+      "task_id": "feature-15",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 15,
+      "tests_total": 15,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.077,
+          "evict_s": 0.214,
+          "ttft_s": 0.256,
+          "total_s": 30.211
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1083,
+          "load_s": 2.118,
+          "evict_s": 0.214,
+          "ttft_s": 0.805,
+          "total_s": 16.723
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 15,
+          "tests_total": 15
+        }
+      ],
+      "capsule_bytes": 7053,
+      "wall_clock_s": 52.08,
+      "error": null
+    },
+    {
+      "task_id": "feature-16",
+      "category": "feature",
+      "passed": false,
+      "iterations": 2,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.076,
+          "evict_s": 0.214,
+          "ttft_s": 0.256,
+          "total_s": 30.199
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1503,
+          "load_s": 2.07,
+          "evict_s": 0.214,
+          "ttft_s": 0.804,
+          "total_s": 22.921
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1869,
+          "load_s": 1.087,
+          "evict_s": 0.164,
+          "ttft_s": 0.205,
+          "total_s": 9.584
+        }
+      ],
+      "capsule_bytes": 13972,
+      "wall_clock_s": 71.47,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "feature-17",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1740,
+          "load_s": 2.087,
+          "evict_s": 0.164,
+          "ttft_s": 0.201,
+          "total_s": 25.627
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 306,
+          "load_s": 2.078,
+          "evict_s": 0.214,
+          "ttft_s": 0.697,
+          "total_s": 5.179
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 11,
+          "tests_total": 11
+        }
+      ],
+      "capsule_bytes": 6169,
+      "wall_clock_s": 35.87,
+      "error": null
+    },
+    {
+      "task_id": "refactor-01",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 713,
+          "load_s": 2.088,
+          "evict_s": 0.214,
+          "ttft_s": 0.26,
+          "total_s": 10.66
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 181,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.428,
+          "total_s": 3.069
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 10,
+          "tests_total": 10
+        }
+      ],
+      "capsule_bytes": 6271,
+      "wall_clock_s": 18.85,
+      "error": null
+    },
+    {
+      "task_id": "refactor-02",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 807,
+          "load_s": 2.087,
+          "evict_s": 0.164,
+          "ttft_s": 0.165,
+          "total_s": 11.938
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 123,
+          "load_s": 2.084,
+          "evict_s": 0.214,
+          "ttft_s": 0.405,
+          "total_s": 2.194
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 9,
+          "tests_total": 9
+        }
+      ],
+      "capsule_bytes": 5493,
+      "wall_clock_s": 19.2,
+      "error": null
+    },
+    {
+      "task_id": "refactor-03",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1156,
+          "load_s": 2.088,
+          "evict_s": 0.164,
+          "ttft_s": 0.188,
+          "total_s": 17.061
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 148,
+          "load_s": 2.075,
+          "evict_s": 0.214,
+          "ttft_s": 0.53,
+          "total_s": 2.686
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 5563,
+      "wall_clock_s": 24.81,
+      "error": null
+    },
+    {
+      "task_id": "refactor-04",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1851,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.187,
+          "total_s": 27.221
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 430,
+          "load_s": 2.083,
+          "evict_s": 0.214,
+          "ttft_s": 0.703,
+          "total_s": 7.018
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 5453,
+      "wall_clock_s": 39.35,
+      "error": null
+    },
+    {
+      "task_id": "refactor-05",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 2,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.083,
+          "evict_s": 0.164,
+          "ttft_s": 0.188,
+          "total_s": 30.118
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1605,
+          "load_s": 2.075,
+          "evict_s": 0.214,
+          "ttft_s": 0.75,
+          "total_s": 24.364
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1870,
+          "load_s": 1.082,
+          "evict_s": 0.164,
+          "ttft_s": 0.204,
+          "total_s": 9.579
+        }
+      ],
+      "capsule_bytes": 12692,
+      "wall_clock_s": 72.79,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "refactor-06",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1366,
+          "load_s": 2.088,
+          "evict_s": 0.214,
+          "ttft_s": 0.259,
+          "total_s": 20.202
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 449,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.608,
+          "total_s": 7.186
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 6163,
+      "wall_clock_s": 32.51,
+      "error": null
+    },
+    {
+      "task_id": "refactor-07",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.085,
+          "evict_s": 0.164,
+          "ttft_s": 0.163,
+          "total_s": 30.116
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 226,
+          "load_s": 2.089,
+          "evict_s": 0.214,
+          "ttft_s": 0.723,
+          "total_s": 4.035
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 8
+        }
+      ],
+      "capsule_bytes": 4969,
+      "wall_clock_s": 39.23,
+      "error": null
+    },
+    {
+      "task_id": "refactor-08",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 2,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.261,
+          "total_s": 30.214
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1466,
+          "load_s": 2.084,
+          "evict_s": 0.214,
+          "ttft_s": 0.813,
+          "total_s": 22.38
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1979,
+          "load_s": 1.003,
+          "evict_s": 0.164,
+          "ttft_s": 0.197,
+          "total_s": 10.123
+        }
+      ],
+      "capsule_bytes": 12532,
+      "wall_clock_s": 71.4,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "refactor-09",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1501,
+          "load_s": 2.078,
+          "evict_s": 0.214,
+          "ttft_s": 0.261,
+          "total_s": 22.182
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 322,
+          "load_s": 2.079,
+          "evict_s": 0.214,
+          "ttft_s": 0.666,
+          "total_s": 5.379
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 12,
+          "tests_total": 12
+        }
+      ],
+      "capsule_bytes": 6693,
+      "wall_clock_s": 32.67,
+      "error": null
+    },
+    {
+      "task_id": "refactor-10",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 3,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.083,
+          "evict_s": 0.164,
+          "ttft_s": 0.188,
+          "total_s": 30.118
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1618,
+          "load_s": 2.076,
+          "evict_s": 0.214,
+          "ttft_s": 0.749,
+          "total_s": 24.546
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 448,
+          "load_s": 1.081,
+          "evict_s": 0.164,
+          "ttft_s": 0.184,
+          "total_s": 2.412
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": null,
+          "total_s": 0.873
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 1.081,
+          "evict_s": 0.164,
+          "ttft_s": 0.072,
+          "total_s": 10.047
+        }
+      ],
+      "capsule_bytes": 13614,
+      "wall_clock_s": 80.82,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "refactor-11",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1029,
+          "load_s": 2.087,
+          "evict_s": 0.164,
+          "ttft_s": 0.2,
+          "total_s": 15.218
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 203,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.486,
+          "total_s": 3.454
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 7,
+          "tests_total": 7
+        }
+      ],
+      "capsule_bytes": 6119,
+      "wall_clock_s": 23.74,
+      "error": null
+    },
+    {
+      "task_id": "refactor-12",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 3,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1532,
+          "load_s": 2.082,
+          "evict_s": 0.214,
+          "ttft_s": 0.175,
+          "total_s": 22.54
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 152,
+          "load_s": 2.081,
+          "evict_s": 0.214,
+          "ttft_s": 0.596,
+          "total_s": 2.82
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 8,
+          "tests_total": 9
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 1.002,
+          "evict_s": 0.164,
+          "ttft_s": 0.09,
+          "total_s": 10.105
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 99,
+          "load_s": 2.075,
+          "evict_s": 0.214,
+          "ttft_s": 1.165,
+          "total_s": 2.623
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1829,
+          "load_s": 1.087,
+          "evict_s": 0.164,
+          "ttft_s": 0.087,
+          "total_s": 9.001
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 228,
+          "load_s": 2.078,
+          "evict_s": 0.214,
+          "ttft_s": 1.131,
+          "total_s": 4.489
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        }
+      ],
+      "capsule_bytes": 10645,
+      "wall_clock_s": 64.87,
+      "error": "budget exhausted after 3 code attempts"
+    },
+    {
+      "task_id": "refactor-13",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 3,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 749,
+          "load_s": 2.077,
+          "evict_s": 0.214,
+          "ttft_s": 0.198,
+          "total_s": 11.128
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1153,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": 0.415,
+          "total_s": 17.283
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 1.083,
+          "evict_s": 0.164,
+          "ttft_s": 0.101,
+          "total_s": 10.16
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 735,
+          "load_s": 2.097,
+          "evict_s": 0.214,
+          "ttft_s": 0.991,
+          "total_s": 11.825
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 1.082,
+          "evict_s": 0.164,
+          "ttft_s": 0.138,
+          "total_s": 10.301
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 795,
+          "load_s": 2.073,
+          "evict_s": 0.214,
+          "ttft_s": 0.979,
+          "total_s": 12.699
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 9,
+          "tests_total": 9
+        }
+      ],
+      "capsule_bytes": 13185,
+      "wall_clock_s": 86.76,
+      "error": null
+    },
+    {
+      "task_id": "refactor-14",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 14,
+      "tests_total": 14,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1708,
+          "load_s": 2.083,
+          "evict_s": 0.214,
+          "ttft_s": 0.301,
+          "total_s": 25.276
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 400,
+          "load_s": 2.088,
+          "evict_s": 0.214,
+          "ttft_s": 0.759,
+          "total_s": 6.632
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 14,
+          "tests_total": 14
+        }
+      ],
+      "capsule_bytes": 7490,
+      "wall_clock_s": 37.03,
+      "error": null
+    },
+    {
+      "task_id": "refactor-15",
+      "category": "refactor",
+      "passed": false,
+      "iterations": 2,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 2048,
+          "load_s": 2.081,
+          "evict_s": 0.214,
+          "ttft_s": 0.267,
+          "total_s": 30.212
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1433,
+          "load_s": 2.073,
+          "evict_s": 0.214,
+          "ttft_s": 0.817,
+          "total_s": 21.907
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "retry",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 0,
+          "tests_total": 0
+        },
+        {
+          "role": "critic",
+          "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1942,
+          "load_s": 1.083,
+          "evict_s": 0.164,
+          "ttft_s": 0.2,
+          "total_s": 9.944
+        }
+      ],
+      "capsule_bytes": 12791,
+      "wall_clock_s": 70.83,
+      "error": "code phase failed: cannot access local variable 'out' where it is not associated with a value"
+    },
+    {
+      "task_id": "refactor-16",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1,
+          "load_s": 2.08,
+          "evict_s": 0.214,
+          "ttft_s": null,
+          "total_s": 0.28
+        },
+        {
+          "role": "code",
+          "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+          "outcome": "ok",
+          "tokens": 1470,
+          "load_s": 2.082,
+          "evict_s": 0.214,
+          "ttft_s": 0.281,
+          "total_s": 21.762
+        },
+        {
+          "role": "review",
+          "model": "grader",
+          "outcome": "ok",
+          "tokens": 0,
+          "load_s": null,
+          "evict_s": null,
+          "ttft_s": null,
+          "total_s": null,
+          "tests_passed": 12,
+          "tests_total": 12
+        }
+      ],
+      "capsule_bytes": 4402,
+      "wall_clock_s": 27.16,
+      "error": null
+    }
+  ],
+  "tasks_passed": 39,
+  "pass_rate": 0.78,
+  "per_category": {
+    "bugfix": {
+      "passed": 14,
+      "total": 17
+    },
+    "feature": {
+      "passed": 14,
+      "total": 17
+    },
+    "refactor": {
+      "passed": 11,
+      "total": 16
+    }
+  },
+  "mean_wall_clock_s": 44.35,
+  "wall_clock_s": 2217.5,
+  "mean_load_s": 2.184,
+  "mean_evict_s": 0.211,
+  "mean_ttft_s": 0.588
+}

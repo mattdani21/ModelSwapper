@@ -101,3 +101,24 @@ RTX PRO 6000 Blackwell 97.9GB (multi-arch build, same model set):
 different session/hardware) to bound run-to-run noise, then G1.2 closes.
 G1.3 remains a near-miss at both temps (40.0/43.4s vs 38.6s bar) — retries
 dominate the tail; resident-mode or per-category temperatures are the levers.
+
+---
+
+## Addendum 2 — Confirmation run (2026-08-20): G1.2 CONFIRMED at the operating point
+
+Same config, temperature 0.2, on Colab **RTX PRO 6000 Blackwell (97.9 GB)**, fresh session.
+
+| Metric | L4 run (0.2) | Blackwell run (0.2) | 0.6 run (Blackwell) |
+|---|---|---|---|
+| Pass rate | **40/50 (80.0%)** | **39/50 (78.0%)** | 35/50 (70.0%) |
+| bugfix | 12/17 | 14/17 | 14/17 |
+| feature | 16/17 | 14/17 | 11/17 |
+| refactor | 12/16 | 11/16 | 10/16 |
+| Mean wall | 40.0 s (2.07×) | 44.4 s (2.30×) | 43.4 s |
+| Mean load / evict | 1.96 / 0.17 s | 2.18 / 0.21 s | 1.93 / 0.19 s |
+
+**Verdict:**
+- **G1.2 (parity ≥ 76.8%) MET and CONFIRMED** — two independent sessions on two different GPUs at the documented operating point (0.2): 80.0% and 78.0%, both above the bar. The claim is no longer single-run.
+- **Temperature sensitivity is the dominant variance term, measured cleanly:** at 0.2 the pipeline is stable (±1 task across sessions); at 0.6 it drops to 70% — feature tasks (spec-adherence) collapse at higher temperature while bugfix improves slightly. 0.2 is the correct operating point and is now the notebook default.
+- **G1.3 remains a documented near-miss on both GPUs** (2.07× and 2.30× vs the 2× bar; API mean 19.3 s). Wall time is dominated by phase serialization + retries, not generation bandwidth — the bigger GPU did not move the mean. Lever: resident mode / fewer retries (Phase 2 work).
+- **Stable core across all three runs:** the tasks that pass at both temperatures (29/50) and the two-0.2-run overlap bound the honest floor; the committed per-task JSONs make every number auditable.
