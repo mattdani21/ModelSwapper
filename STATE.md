@@ -47,6 +47,24 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
 - Benchmark suite: **50/50 tasks authored + RED/GREEN verified**; frontier baseline measured (48/50, 96.0%)
 - No T0 (24 GB) or T1 (48 GB) hardware available to the swarm yet — those numbers are open.
 
+## Phase 2 (active) — engineering down the swap
+
+- **G2.2 overlap engine DONE + measured (T4)**: `runtime/overlap.py` two-slot
+  prefetch (load B while A generates; promote; memory-ceiling guard; sequential
+  fallback; unique ports; self-reaping threads). Measured 4B→0.6B warm:
+  sequential 0.851 s → overlapped **0.063 s (92.6% hidden)** —
+  `benchmarks/results/swap-overlap-20260820-112658.json`.
+- **G2.4 capsule compression v1 DONE**: `capsule/compress.py` (8k default
+  budget, verbatim core, roll-ups, summarizer hook, sub-linear growth tests).
+- **G2.3 ablation runner DONE**: `benchmarks/harness/run_ablation.py` —
+  capsule / naive / single arms, machine-emitted verdict; handoff modes +
+  `--resident` in the pipeline. Local 4B smoke run in progress; full 27B-scale
+  run is a Colab job.
+- **G2.1 (warm swap ≤ 1.5 s at 27B scale)**: not yet measured at scale —
+  engine is ready; Colab run pending. T4 sequential warm swap already 0.85 s.
+- Issues: G2.1–G2.4 = #12–#15 (milestone "Phase 2 — Engineering down the swap").
+- ADR-0005 accepted.
+
 ## Blockers
 
 - None. (T0/T1 hardware numbers are scheduling items, not blockers — mechanics are measured on T4 hardware now.)
