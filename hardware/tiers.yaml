@@ -10,6 +10,9 @@ tiers:
     policy: "aggressive swap"
     swap_targets: {warm_s: 3.0, cold_s: 8.0}
     peak_memory_ceiling_gb: 20
+    measured: false
+    max_specialist: "27B class at Q4 (16.8 GB) fits weight-wise; peak unified memory expected 19-21 GB at 8192 ctx — borderline vs the 20 GB ceiling (G1.5). Q3_K_M (12.6 GB) is the safe fallback."
+    runbook: "hardware/t0_air_run.sh (smoke -> full 50; memory CSV; Q3 fallback via MODEL_Q=Q3_K_M)"
   T1:
     hardware: "Mac mini 48 GB"
     total_ram_gb: 48
