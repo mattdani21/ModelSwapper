@@ -34,11 +34,28 @@ Machine-emitted verdict: `capsule_ge_naive_quality: true`, `capsule_strictly_bet
    small-model artifact, not a verdict on the thesis.
 4. peak_rss wasn't captured in run 1 (phase log now records it — run 2 has it).
 
-## Smoke run 2 (in flight)
+## Smoke run 2 (2026-08-20, context 8192 + feedback-bounding fix) — `ablation-local-4b-smoke2.json`
 
-Context 8192 + the feedback-bounding fix: capsule retries should survive, and
-naive gets a fair shot on single-attempt tasks. The memory comparison is only
-meaningful when both arms complete retries — the 27B-scale Colab run decides.
+| Arm | Pass | Wall/task | Context (mean) | Verdict input |
+|---|---|---|---|---|
+| capsule | **3/3 (100%)** | 230.3 s | **1352 tok** | quality ≥ naive ✓ |
+| naive | 3/3 (100%) | 166.8 s | 2151 tok | memory: capsule strictly better ✓ |
+| single | 3/3 (100%) | 207.9 s | 1610 tok | — |
+
+Machine-emitted verdict: `capsule_ge_naive_quality: true`, `capsule_strictly_better_memory: true`.
+
+**The thesis mechanism holds at the floor**: equal quality (100% both) with
+the capsule carrying **37% less context** (1352 vs 2151 tok) — the structured
+roll-up beats the verbatim transcript on memory without losing quality.
+
+Honest caveats:
+- naive was *faster* (166.8 vs 230.3 s/task): it passed every task on the
+  first attempt while capsule+single needed retries (6 phases on 2 of 3
+  tasks). Small sample at the floor — the bigger naive context may genuinely
+  help the 4B's first attempt. The quality-vs-memory tradeoff at scale is
+  what the 27B Colab run decides.
+- RSS not captured in run 2 either (llama_backend now samples it — the
+  Colab run will have real per-phase memory).
 
 ## What the 27B-scale run must show (G2.3 acceptance)
 

@@ -73,6 +73,13 @@ class LlamaBackend(ModelBackend):
                         ttft = round(time.monotonic() - t0, 3)
                     chunks.append(chunk["content"])
                 tokens = chunk.get("timings", {}).get("predicted_n", tokens)
+        # point-sample RSS after generation (Server's own sampler only runs in
+        # swap_runner's CLI path) — good enough for the G2.3 memory arm
+        from runtime.swap_runner import process_rss_kb as _rss
+        pid = self._server.proc.pid if self._server.proc else None
+        rss = _rss(pid) if pid else None
+        if rss:
+            self._server.peak_rss_kb = max(self._server.peak_rss_kb, rss)
         return GenerationResult(
             text="".join(chunks),
             tokens=tokens,
