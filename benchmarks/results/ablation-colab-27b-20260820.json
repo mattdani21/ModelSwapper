@@ -1,0 +1,1449 @@
+{
+  "goal_refs": [
+    "G2.3"
+  ],
+  "run_at": "2026-08-20T10:44:45Z",
+  "host": {
+    "machine": "Apple M3 (arm64)",
+    "ram_gb": 8.0,
+    "tier": "T4",
+    "os": "macOS 26.6"
+  },
+  "models": {
+    "reason": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+    "code": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+    "review": "/content/models/Qwen3-8B-Q4_K_M.gguf"
+  },
+  "max_iterations": 3,
+  "max_tokens": 2048,
+  "temperature": 0.2,
+  "arms": {
+    "capsule": {
+      "arm": "capsule",
+      "tasks_total": 8,
+      "tasks_passed": 7,
+      "pass_rate": 0.875,
+      "mean_wall_clock_s": 53.23,
+      "mean_context_tokens_est": 1976,
+      "mean_peak_rss_kb": 1434746,
+      "results": [
+        {
+          "task_id": "bugfix-01",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 8,
+          "tests_total": 8,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 629,
+              "load_s": 26.058,
+              "evict_s": 1.515,
+              "ttft_s": 18.471,
+              "total_s": 29.252,
+              "peak_rss_kb": 1746060,
+              "context_tokens_est": 609
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 57,
+              "load_s": 2.083,
+              "evict_s": 0.164,
+              "ttft_s": 0.318,
+              "total_s": 1.146,
+              "peak_rss_kb": 1578396,
+              "context_tokens_est": 770
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 8,
+              "tests_total": 8,
+              "context_tokens_est": 856
+            }
+          ],
+          "capsule_bytes": 3734,
+          "wall_clock_s": 60.9,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-02",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 687,
+              "load_s": 2.056,
+              "evict_s": 0.164,
+              "ttft_s": 0.144,
+              "total_s": 10.146,
+              "peak_rss_kb": 1425632,
+              "context_tokens_est": 524
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 59,
+              "load_s": 2.081,
+              "evict_s": 0.164,
+              "ttft_s": 0.332,
+              "total_s": 1.189,
+              "peak_rss_kb": 1579324,
+              "context_tokens_est": 680
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 766
+            }
+          ],
+          "capsule_bytes": 3373,
+          "wall_clock_s": 16.32,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-03",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 7,
+          "tests_total": 7,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1578,
+              "load_s": 2.058,
+              "evict_s": 0.164,
+              "ttft_s": 0.143,
+              "total_s": 23.136,
+              "peak_rss_kb": 1425232,
+              "context_tokens_est": 823
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 56,
+              "load_s": 2.067,
+              "evict_s": 0.164,
+              "ttft_s": 0.581,
+              "total_s": 1.396,
+              "peak_rss_kb": 1578912,
+              "context_tokens_est": 973
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 7,
+              "tests_total": 7,
+              "context_tokens_est": 1059
+            }
+          ],
+          "capsule_bytes": 4547,
+          "wall_clock_s": 29.5,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-04",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 644,
+              "load_s": 2.084,
+              "evict_s": 0.164,
+              "ttft_s": 0.132,
+              "total_s": 9.51,
+              "peak_rss_kb": 1425212,
+              "context_tokens_est": 376
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 53,
+              "load_s": 2.063,
+              "evict_s": 0.164,
+              "ttft_s": 0.31,
+              "total_s": 1.079,
+              "peak_rss_kb": 1578920,
+              "context_tokens_est": 525
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 611
+            }
+          ],
+          "capsule_bytes": 2754,
+          "wall_clock_s": 15.58,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-05",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.078,
+              "evict_s": 0.164,
+              "ttft_s": 0.131,
+              "total_s": 29.992,
+              "peak_rss_kb": 1425516,
+              "context_tokens_est": 808
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 35,
+              "load_s": 2.07,
+              "evict_s": 0.164,
+              "ttft_s": 0.69,
+              "total_s": 1.199,
+              "peak_rss_kb": 1579280,
+              "context_tokens_est": 948
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 1034
+            }
+          ],
+          "capsule_bytes": 4446,
+          "wall_clock_s": 36.18,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-06",
+          "category": "bugfix",
+          "passed": false,
+          "iterations": 3,
+          "tests_passed": 0,
+          "tests_total": 0,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.074,
+              "evict_s": 0.164,
+              "ttft_s": 0.185,
+              "total_s": 30.065,
+              "peak_rss_kb": 1425540,
+              "context_tokens_est": 737
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1638,
+              "load_s": 2.068,
+              "evict_s": 0.164,
+              "ttft_s": 0.747,
+              "total_s": 24.811,
+              "peak_rss_kb": 1579436,
+              "context_tokens_est": 2377
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 0,
+              "tests_total": 0,
+              "context_tokens_est": 2464
+            },
+            {
+              "role": "critic",
+              "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 653,
+              "load_s": 9.426,
+              "evict_s": 0.164,
+              "ttft_s": 5.061,
+              "total_s": 8.301,
+              "peak_rss_kb": 1003180,
+              "context_tokens_est": 2724
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1498,
+              "load_s": 2.074,
+              "evict_s": 0.164,
+              "ttft_s": 0.804,
+              "total_s": 22.815,
+              "peak_rss_kb": 1579612,
+              "context_tokens_est": 4307
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 0,
+              "tests_total": 0,
+              "context_tokens_est": 4394
+            },
+            {
+              "role": "critic",
+              "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 630,
+              "load_s": 1.085,
+              "evict_s": 0.113,
+              "ttft_s": 0.181,
+              "total_s": 3.311,
+              "peak_rss_kb": 812192,
+              "context_tokens_est": 4655
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1489,
+              "load_s": 2.071,
+              "evict_s": 0.164,
+              "ttft_s": 0.804,
+              "total_s": 22.676,
+              "peak_rss_kb": 1579628,
+              "context_tokens_est": 6234
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 0,
+              "tests_total": 0,
+              "context_tokens_est": 6320
+            }
+          ],
+          "capsule_bytes": 25596,
+          "wall_clock_s": 133.49,
+          "error": "budget exhausted after 3 code attempts"
+        },
+        {
+          "task_id": "bugfix-07",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 2,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.067,
+              "evict_s": 0.164,
+              "ttft_s": 0.163,
+              "total_s": 30.043,
+              "peak_rss_kb": 1425360,
+              "context_tokens_est": 1009
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1721,
+              "load_s": 2.075,
+              "evict_s": 0.164,
+              "ttft_s": 0.725,
+              "total_s": 25.999,
+              "peak_rss_kb": 1579232,
+              "context_tokens_est": 3056
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 0,
+              "tests_total": 0,
+              "context_tokens_est": 3143
+            },
+            {
+              "role": "critic",
+              "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1845,
+              "load_s": 1.078,
+              "evict_s": 0.164,
+              "ttft_s": 0.206,
+              "total_s": 9.444,
+              "peak_rss_kb": 812544,
+              "context_tokens_est": 3406
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1586,
+              "load_s": 2.081,
+              "evict_s": 0.164,
+              "ttft_s": 0.76,
+              "total_s": 24.061,
+              "peak_rss_kb": 1579584,
+              "context_tokens_est": 3568
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 3655
+            }
+          ],
+          "capsule_bytes": 14931,
+          "wall_clock_s": 98.61,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-08",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 8,
+          "tests_total": 8,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1,
+              "load_s": 2.075,
+              "evict_s": 0.164,
+              "ttft_s": null,
+              "total_s": 0.188,
+              "peak_rss_kb": 1420172,
+              "context_tokens_est": 340
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.08,
+              "evict_s": 0.164,
+              "ttft_s": 0.186,
+              "total_s": 30.074,
+              "peak_rss_kb": 1425444,
+              "context_tokens_est": 693
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 8,
+              "tests_total": 8,
+              "context_tokens_est": 780
+            }
+          ],
+          "capsule_bytes": 3428,
+          "wall_clock_s": 35.27,
+          "error": null
+        }
+      ]
+    },
+    "naive": {
+      "arm": "naive",
+      "tasks_total": 8,
+      "tasks_passed": 3,
+      "pass_rate": 0.375,
+      "mean_wall_clock_s": 37.06,
+      "mean_context_tokens_est": 731,
+      "mean_peak_rss_kb": 1382676,
+      "results": [
+        {
+          "task_id": "bugfix-01",
+          "category": "bugfix",
+          "passed": false,
+          "iterations": 0,
+          "tests_passed": 0,
+          "tests_total": 0,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.103,
+              "evict_s": 0.164,
+              "ttft_s": 0.144,
+              "total_s": 30.026,
+              "peak_rss_kb": 1425248,
+              "context_tokens_est": 1952
+            }
+          ],
+          "capsule_bytes": 4288,
+          "wall_clock_s": 34.63,
+          "error": "code phase failed: HTTP Error 400: Bad Request"
+        },
+        {
+          "task_id": "bugfix-02",
+          "category": "bugfix",
+          "passed": false,
+          "iterations": 3,
+          "tests_passed": 2,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 500,
+              "load_s": 2.083,
+              "evict_s": 0.163,
+              "ttft_s": 0.143,
+              "total_s": 7.424,
+              "peak_rss_kb": 1425564,
+              "context_tokens_est": 366
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1589,
+              "load_s": 2.087,
+              "evict_s": 0.164,
+              "ttft_s": 0.425,
+              "total_s": 23.665,
+              "peak_rss_kb": 1579184,
+              "context_tokens_est": 415
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 2,
+              "tests_total": 6,
+              "context_tokens_est": 415
+            },
+            {
+              "role": "critic",
+              "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1,
+              "load_s": 1.086,
+              "evict_s": 0.164,
+              "ttft_s": null,
+              "total_s": 0.133,
+              "peak_rss_kb": 810072,
+              "context_tokens_est": 420
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 966,
+              "load_s": 2.119,
+              "evict_s": 0.164,
+              "ttft_s": 0.447,
+              "total_s": 14.56,
+              "peak_rss_kb": 1579284,
+              "context_tokens_est": 469
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 2,
+              "tests_total": 6,
+              "context_tokens_est": 469
+            },
+            {
+              "role": "critic",
+              "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1,
+              "load_s": 1.083,
+              "evict_s": 0.164,
+              "ttft_s": null,
+              "total_s": 0.136,
+              "peak_rss_kb": 809720,
+              "context_tokens_est": 474
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1035,
+              "load_s": 2.075,
+              "evict_s": 0.164,
+              "ttft_s": 0.469,
+              "total_s": 15.59,
+              "peak_rss_kb": 1579520,
+              "context_tokens_est": 523
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 2,
+              "tests_total": 6,
+              "context_tokens_est": 523
+            }
+          ],
+          "capsule_bytes": 6348,
+          "wall_clock_s": 74.64,
+          "error": "budget exhausted after 3 code attempts"
+        },
+        {
+          "task_id": "bugfix-03",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 7,
+          "tests_total": 7,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1459,
+              "load_s": 2.125,
+              "evict_s": 0.164,
+              "ttft_s": 0.143,
+              "total_s": 21.401,
+              "peak_rss_kb": 1425352,
+              "context_tokens_est": 1137
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 61,
+              "load_s": 2.078,
+              "evict_s": 0.163,
+              "ttft_s": 0.955,
+              "total_s": 1.847,
+              "peak_rss_kb": 1580028,
+              "context_tokens_est": 1180
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 7,
+              "tests_total": 7,
+              "context_tokens_est": 1180
+            }
+          ],
+          "capsule_bytes": 4482,
+          "wall_clock_s": 28.3,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-04",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 2,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 626,
+              "load_s": 2.073,
+              "evict_s": 0.164,
+              "ttft_s": 0.133,
+              "total_s": 9.251,
+              "peak_rss_kb": 1425108,
+              "context_tokens_est": 454
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2,
+              "load_s": 2.061,
+              "evict_s": 0.164,
+              "ttft_s": 0.473,
+              "total_s": 0.496,
+              "peak_rss_kb": 1578140,
+              "context_tokens_est": 458
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 0,
+              "tests_total": 0,
+              "context_tokens_est": 458
+            },
+            {
+              "role": "critic",
+              "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1,
+              "load_s": 1.08,
+              "evict_s": 0.164,
+              "ttft_s": null,
+              "total_s": 0.11,
+              "peak_rss_kb": 809916,
+              "context_tokens_est": 463
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1744,
+              "load_s": 2.073,
+              "evict_s": 0.164,
+              "ttft_s": 0.484,
+              "total_s": 26.018,
+              "peak_rss_kb": 1579204,
+              "context_tokens_est": 505
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 505
+            }
+          ],
+          "capsule_bytes": 4755,
+          "wall_clock_s": 44.9,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-05",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 440,
+              "load_s": 2.056,
+              "evict_s": 0.164,
+              "ttft_s": 0.13,
+              "total_s": 6.535,
+              "peak_rss_kb": 1425472,
+              "context_tokens_est": 404
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 35,
+              "load_s": 2.083,
+              "evict_s": 0.164,
+              "ttft_s": 0.389,
+              "total_s": 0.898,
+              "peak_rss_kb": 1579364,
+              "context_tokens_est": 437
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 437
+            }
+          ],
+          "capsule_bytes": 3298,
+          "wall_clock_s": 12.42,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-06",
+          "category": "bugfix",
+          "passed": false,
+          "iterations": 0,
+          "tests_passed": 0,
+          "tests_total": 0,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.083,
+              "evict_s": 0.164,
+              "ttft_s": 0.185,
+              "total_s": 30.065,
+              "peak_rss_kb": 1425568,
+              "context_tokens_est": 1271
+            }
+          ],
+          "capsule_bytes": 4292,
+          "wall_clock_s": 34.65,
+          "error": "code phase failed: HTTP Error 400: Bad Request"
+        },
+        {
+          "task_id": "bugfix-07",
+          "category": "bugfix",
+          "passed": false,
+          "iterations": 0,
+          "tests_passed": 0,
+          "tests_total": 0,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1889,
+              "load_s": 2.08,
+              "evict_s": 0.164,
+              "ttft_s": 0.163,
+              "total_s": 27.714,
+              "peak_rss_kb": 1425764,
+              "context_tokens_est": 1415
+            }
+          ],
+          "capsule_bytes": 4071,
+          "wall_clock_s": 32.31,
+          "error": "code phase failed: HTTP Error 400: Bad Request"
+        },
+        {
+          "task_id": "bugfix-08",
+          "category": "bugfix",
+          "passed": false,
+          "iterations": 0,
+          "tests_passed": 0,
+          "tests_total": 0,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.071,
+              "evict_s": 0.164,
+              "ttft_s": 0.185,
+              "total_s": 30.06,
+              "peak_rss_kb": 1425668,
+              "context_tokens_est": 1945
+            }
+          ],
+          "capsule_bytes": 4558,
+          "wall_clock_s": 34.64,
+          "error": "code phase failed: HTTP Error 400: Bad Request"
+        }
+      ]
+    },
+    "single": {
+      "arm": "single",
+      "tasks_total": 8,
+      "tasks_passed": 8,
+      "pass_rate": 1.0,
+      "mean_wall_clock_s": 37.56,
+      "mean_context_tokens_est": 1003,
+      "mean_peak_rss_kb": 1909644,
+      "results": [
+        {
+          "task_id": "bugfix-01",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 8,
+          "tests_total": 8,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 730,
+              "load_s": 2.074,
+              "evict_s": 0.0,
+              "ttft_s": 0.144,
+              "total_s": 10.777,
+              "peak_rss_kb": 1425332,
+              "context_tokens_est": 755
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 58,
+              "load_s": 2.074,
+              "evict_s": 0.0,
+              "ttft_s": 0.34,
+              "total_s": 1.183,
+              "peak_rss_kb": 2101124,
+              "context_tokens_est": 917
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 8,
+              "tests_total": 8,
+              "context_tokens_est": 1002
+            }
+          ],
+          "capsule_bytes": 4318,
+          "wall_clock_s": 14.71,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-02",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 751,
+              "load_s": 2.073,
+              "evict_s": 0.0,
+              "ttft_s": 0.143,
+              "total_s": 11.079,
+              "peak_rss_kb": 1425160,
+              "context_tokens_est": 491
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 59,
+              "load_s": 2.073,
+              "evict_s": 0.0,
+              "ttft_s": 0.338,
+              "total_s": 1.195,
+              "peak_rss_kb": 2101276,
+              "context_tokens_est": 648
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 733
+            }
+          ],
+          "capsule_bytes": 3242,
+          "wall_clock_s": 15.03,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-03",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 7,
+          "tests_total": 7,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.077,
+              "evict_s": 0.0,
+              "ttft_s": 0.144,
+              "total_s": 30.02,
+              "peak_rss_kb": 1425220,
+              "context_tokens_est": 900
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 71,
+              "load_s": 2.077,
+              "evict_s": 0.0,
+              "ttft_s": 0.729,
+              "total_s": 1.765,
+              "peak_rss_kb": 2185340,
+              "context_tokens_est": 1063
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 7,
+              "tests_total": 7,
+              "context_tokens_est": 1149
+            }
+          ],
+          "capsule_bytes": 4907,
+          "wall_clock_s": 34.59,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-04",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 2,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.065,
+              "evict_s": 0.0,
+              "ttft_s": 0.132,
+              "total_s": 30.001,
+              "peak_rss_kb": 1425884,
+              "context_tokens_est": 695
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1844,
+              "load_s": 2.065,
+              "evict_s": 0.0,
+              "ttft_s": 0.758,
+              "total_s": 27.83,
+              "peak_rss_kb": 2032716,
+              "context_tokens_est": 843
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "retry",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 2,
+              "tests_total": 6,
+              "context_tokens_est": 929
+            },
+            {
+              "role": "critic",
+              "model": "/content/models/Qwen3-8B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 218,
+              "load_s": 2.065,
+              "evict_s": 0.0,
+              "ttft_s": 0.382,
+              "total_s": 3.551,
+              "peak_rss_kb": 2754700,
+              "context_tokens_est": 1194
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 95,
+              "load_s": 2.065,
+              "evict_s": 0.0,
+              "ttft_s": 0.832,
+              "total_s": 2.216,
+              "peak_rss_kb": 3271452,
+              "context_tokens_est": 1341
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 1427
+            }
+          ],
+          "capsule_bytes": 6019,
+          "wall_clock_s": 66.91,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-05",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.08,
+              "evict_s": 0.0,
+              "ttft_s": 0.131,
+              "total_s": 30.004,
+              "peak_rss_kb": 1425128,
+              "context_tokens_est": 777
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 35,
+              "load_s": 2.08,
+              "evict_s": 0.0,
+              "ttft_s": 0.752,
+              "total_s": 1.257,
+              "peak_rss_kb": 2029796,
+              "context_tokens_est": 916
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 1002
+            }
+          ],
+          "capsule_bytes": 4317,
+          "wall_clock_s": 34.01,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-06",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 7,
+          "tests_total": 7,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1167,
+              "load_s": 2.079,
+              "evict_s": 0.0,
+              "ttft_s": 0.186,
+              "total_s": 17.194,
+              "peak_rss_kb": 1425476,
+              "context_tokens_est": 650
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.079,
+              "evict_s": 0.0,
+              "ttft_s": 0.468,
+              "total_s": 30.459,
+              "peak_rss_kb": 2138972,
+              "context_tokens_est": 867
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 7,
+              "tests_total": 7,
+              "context_tokens_est": 953
+            }
+          ],
+          "capsule_bytes": 4123,
+          "wall_clock_s": 50.41,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-07",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 6,
+          "tests_total": 6,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1559,
+              "load_s": 2.068,
+              "evict_s": 0.0,
+              "ttft_s": 0.163,
+              "total_s": 22.889,
+              "peak_rss_kb": 1425896,
+              "context_tokens_est": 1056
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 68,
+              "load_s": 2.068,
+              "evict_s": 0.0,
+              "ttft_s": 0.587,
+              "total_s": 1.572,
+              "peak_rss_kb": 2159100,
+              "context_tokens_est": 1228
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 6,
+              "tests_total": 6,
+              "context_tokens_est": 1314
+            }
+          ],
+          "capsule_bytes": 5566,
+          "wall_clock_s": 27.2,
+          "error": null
+        },
+        {
+          "task_id": "bugfix-08",
+          "category": "bugfix",
+          "passed": true,
+          "iterations": 1,
+          "tests_passed": 8,
+          "tests_total": 8,
+          "phases": [
+            {
+              "role": "reason",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 2048,
+              "load_s": 2.089,
+              "evict_s": 0.0,
+              "ttft_s": 0.185,
+              "total_s": 30.079,
+              "peak_rss_kb": 1425272,
+              "context_tokens_est": 1079
+            },
+            {
+              "role": "code",
+              "model": "/content/models/Qwen3.8-27B-Q4_K_M.gguf",
+              "outcome": "ok",
+              "tokens": 1634,
+              "load_s": 2.089,
+              "evict_s": 0.0,
+              "ttft_s": 0.732,
+              "total_s": 24.727,
+              "peak_rss_kb": 2195744,
+              "context_tokens_est": 1528
+            },
+            {
+              "role": "review",
+              "model": "grader",
+              "outcome": "ok",
+              "tokens": 0,
+              "load_s": null,
+              "evict_s": null,
+              "ttft_s": null,
+              "total_s": null,
+              "peak_rss_kb": null,
+              "tests_passed": 8,
+              "tests_total": 8,
+              "context_tokens_est": 1614
+            }
+          ],
+          "capsule_bytes": 6768,
+          "wall_clock_s": 57.62,
+          "error": null
+        }
+      ]
+    }
+  },
+  "verdict": {
+    "capsule_ge_naive_quality": true,
+    "capsule_strictly_better_memory": false,
+    "pass_capsule": 0.875,
+    "pass_naive": 0.375,
+    "ctx_capsule": 1976,
+    "ctx_naive": 731
+  }
+}

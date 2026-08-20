@@ -66,3 +66,45 @@ Honest caveats:
 
 If capsule loses to naive on quality at 27B scale: **stop and escalate**
 (master prompt §2 — the thesis needs revision).
+
+## 27B-scale Colab run (2026-08-20, RTX PRO 6000 Blackwell) — `ablation-colab-27b-20260820.json`
+
+| Arm | Pass | Wall/task | Context | RSS |
+|---|---|---|---|---|
+| capsule | **7/8 (87.5%)** | 53.2 s | 1976 tok | 1.43 GB |
+| naive | 3/8 (37.5%) | 37.1 s | 731 tok | 1.38 GB |
+| single | **8/8 (100%)** | 37.6 s | 1003 tok | 1.91 GB |
+
+Verdict: `capsule_ge_naive_quality: true` (87.5 vs 37.5 — capsule wins by 50
+points), `capsule_strictly_better_memory: false` (1976 vs 731 tok).
+
+**Confound, stated plainly**: the executed notebook ran at **4096** context
+(stale Colab tab — the committed notebook has 8192). At 4096 the naive
+transcript overflows on retry tasks and its context never grows — the naive
+arm died early on 5/8 tasks, so (a) its 37.5% is context-handicapped and
+(b) its 731-tok mean is a death artifact, not a memory win. The quality
+direction is real (capsule finished retries where naive couldn't), but the
+memory verdict is not settled by this run.
+
+## Overlap A/B at 27B scale (same run) — `sequential-colab-27b-20260820.json` / `overlap-colab-27b-20260820.json`
+
+| Backend | Pass | Mean wall | Mean load |
+|---|---|---|---|
+| sequential (Phase 1) | 6/8 (75%) | 50.05 s | 1.881 s |
+| **overlap engine** | **8/8 (100%)** | **34.66 s (−30.8%)** | **1.04 s** |
+
+- 8 of 24 overlap phases paid **zero** load (promoted standby); the rest were
+  first-loads of the task. The ~2 s 27B loads are being hidden, as designed.
+- Quality delta (8/8 vs 6/8) is partly sampling variance at temp 0.2 — the
+  timing signal is the clean one.
+- **G1.3 projection: 50 × 34.66 s = 1733 s vs API 965 s → 1.80×, under the
+  2× bar.** The overlap engine is the G1.3 lever, now measured at 27B scale.
+- RSS: single (27B resident) 1.91 GB > capsule 1.43 GB > naive 1.38 GB —
+  process RSS is dominated by resident weights; the context-token story is
+  the memory metric that matters and awaits the 8192 rerun.
+
+## Outstanding
+
+- **8192-context rerun** (fresh tab, notebook as committed) to settle the
+  naive-arm quality + memory verdict cleanly.
+- **50-task overlap run** to close G2.2 formally and G1.3 (projected 1.80×).
