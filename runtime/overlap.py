@@ -122,6 +122,11 @@ class PrefetchEngine:
         """
         t0 = time.monotonic()
         with self._lock:
+            active = self.slots["active"]
+            if active is not None and active.model_path == model_path:
+                # already resident — nothing to swap (reuse path)
+                return {"promoted": True, "hidden_load_s": 0.0, "evict_s": 0.0,
+                        "swap_s": 0.0, "reused": True}
             standby = self.slots["standby"]
             matching = standby is not None and standby.model_path == model_path
         if os.environ.get("OVERLAP_DEBUG"):

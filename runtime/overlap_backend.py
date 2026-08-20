@@ -1,34 +1,35 @@
-"""Llama.cpp llama-server backend for the pipeline (Phase 1, ADR-0004).
+"""OverlapBackend — ModelBackend adapter over the two-slot PrefetchEngine (G2.2).
 
-Reuses runtime/swap_runner.Server for process lifecycle + RSS accounting,
-and adds a parameterized streaming generate (temperature / max_tokens).
-Same HTTP protocol works on Metal (Mac) and CUDA (Kaggle) builds.
+One engine is shared by every role of a task; each OverlapBackend binds the
+engine to one specialist path. generate():
+
+  1. swap(model) — promote the prefetched standby, or sequential fallback
+  2. prefetch(next_model) — non-blocking; the NEXT specialist's load overlaps
+     this generation (the swap the pipeline pays for next phase is hidden)
+  3. stream the completion against the active server
+
+load_s in the result = what THIS phase actually paid: 0.0 on a promoted swap
+(the load happened during the previous phase's generation), the real load
+on a fallback. evict_s = the eviction the promotion forced.
 """
 from __future__ import annotations
 
 import json
-import os
-import sys
 import time
 import urllib.request
 from typing import Optional
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from runtime.swap_runner import Server  # noqa: E402
-
-from pipeline.contracts import GenerationResult, ModelBackend  # noqa: E402
+from pipeline.contracts import GenerationResult, ModelBackend
+from runtime.overlap import PrefetchEngine
 
 
-class LlamaBackend(ModelBackend):
-    def __init__(self, model_path: str, port: int):
+class OverlapBackend(ModelBackend):
+    def __init__(self, engine: PrefetchEngine, model_path: str):
+        self.engine = engine
         self.model_path = model_path
-        self.port = port
-        self._server: Optional[Server] = None
 
     def start(self) -> None:
-        self._server = Server(self.model_path, self.port)
-        self._server.start()
+        pass  # the engine owns the servers
 
     def generate(
         self,
@@ -37,21 +38,22 @@ class LlamaBackend(ModelBackend):
         temperature: float = 0.2,
         prefetch_model: Optional[str] = None,
     ) -> GenerationResult:
-        if self._server is None:
-            raise RuntimeError("backend not started")
+        swap_stats = self.engine.swap(self.model_path, 0)
+        srv = self.engine.active()
+        if srv is None:
+            raise RuntimeError(f"overlap engine has no active server after swap for {self.model_path}")
+        if prefetch_model:
+            self.engine.prefetch(prefetch_model)
+
         body = json.dumps({
             "prompt": prompt,
             "n_predict": max_tokens,
             "temperature": temperature,
             "stream": True,
-            # Qwen3 chat templates think by default; the pipeline wants direct
-            # answers (thinking tokens are pure overhead at our speeds and they
-            # blew the plan/code budgets on the first Kaggle run). Non-Qwen3
-            # templates ignore this field.
             "enable_thinking": False,
         }).encode()
         req = urllib.request.Request(
-            f"http://127.0.0.1:{self.port}/completion",
+            f"http://127.0.0.1:{srv.port}/completion",
             data=body,
             headers={"Content-Type": "application/json"},
         )
@@ -78,13 +80,9 @@ class LlamaBackend(ModelBackend):
             tokens=tokens,
             ttft_s=ttft,
             total_s=round(time.monotonic() - t0, 3),
-            load_s=self._server.load_s,
-            peak_rss_kb=self._server.peak_rss_kb,
+            load_s=0.0 if swap_stats.get("promoted") else swap_stats.get("load_s"),
+            evict_s=swap_stats.get("evict_s", 0.0),
         )
 
     def stop(self) -> float:
-        if self._server is None:
-            return 0.0
-        dt = self._server.stop()
-        self._server = None
-        return dt
+        return 0.0  # the engine stops once per task (run_pipeline), not per phase

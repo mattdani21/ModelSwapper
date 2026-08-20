@@ -30,9 +30,18 @@ class ModelBackend(ABC):
 
     @abstractmethod
     def generate(
-        self, prompt: str, max_tokens: int = 2048, temperature: float = 0.2
+        self,
+        prompt: str,
+        max_tokens: int = 2048,
+        temperature: float = 0.2,
+        prefetch_model: Optional[str] = None,
     ) -> GenerationResult:
-        """Streaming generation with timings."""
+        """Streaming generation with timings.
+
+        prefetch_model: optional next specialist to load in the background
+        DURING this generation (G2.2). Backends without a standby slot
+        ignore it.
+        """
 
     @abstractmethod
     def stop(self) -> float:

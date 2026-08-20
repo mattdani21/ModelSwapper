@@ -155,3 +155,80 @@ def test_handoff_invalid_value_rejected():
         assert False, "should have raised"
     except ValueError:
         pass
+
+
+def test_prefetch_hints_follow_phase_order():
+    """G2.2: the loop tells each phase which specialist to pre-load next."""
+    backends = []
+
+    def code(prompt):
+        if "Reviewer feedback" in prompt and "[CODE ATTEMPT]" in prompt:
+            return _reference_text()
+        return "def most_common_word(text):\n    return None\n"
+
+    behaviours = {
+        "fake-r.gguf": lambda p: "1. plan\n2. implement",
+        "fake-c.gguf": code,
+        "fake-v.gguf": lambda p: "implement the real algorithm",
+    }
+
+    def factory(model_path, port):
+        b = FakeBackend(model_path, callable_resp=behaviours[os.path.basename(model_path)])
+        backends.append(b)
+        return b
+
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3, handoff="naive")
+    assert r.passed is True
+    hints = [b.prefetches[0] for b in backends]
+    assert len(hints) >= 3
+    assert hints[0] == MODELS["code"], f"reason should prefetch code, got {hints[0]}"
+    assert hints[1] == MODELS["review"], f"code should prefetch review, got {hints[1]}"
+    assert hints[2] == MODELS["code"], f"critic should prefetch code, got {hints[2]}"
+
+
+def test_overlap_backend_swaps_and_prefetches(monkeypatch):
+    """G2.2: OverlapBackend promotes via the engine and prefetches the next model."""
+    import runtime.overlap_backend as ob
+
+    class StubServer:
+        port = 9999
+
+    class StubEngine:
+        def __init__(self):
+            self.swaps = []
+            self.prefetches = []
+            self.srv = StubServer()
+
+        def swap(self, model, port):
+            self.swaps.append(model)
+            return {"promoted": True, "load_s": 1.0, "evict_s": 0.05, "swap_s": 0.05}
+
+        def prefetch(self, model):
+            self.prefetches.append(model)
+
+        def active(self):
+            return self.srv
+
+    class FakeResp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def __iter__(self):
+            yield b'data: {"content":"hi","timings":{"predicted_n":2}}\n\n'
+
+    engine = StubEngine()
+
+    def fake_urlopen(req, timeout=900):
+        return FakeResp()
+
+    monkeypatch.setattr(ob.urllib.request, "urlopen", fake_urlopen)
+    b = ob.OverlapBackend(engine, "models/A.gguf")  # type: ignore[arg-type]
+    r = b.generate("hello", prefetch_model="models/B.gguf")
+    assert engine.swaps == ["models/A.gguf"]
+    assert engine.prefetches == ["models/B.gguf"]
+    assert r.load_s == 0.0, "promoted swap must report hidden load (0.0)"
+    assert r.evict_s == 0.05
+    assert r.text == "hi"

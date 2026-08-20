@@ -19,6 +19,7 @@ class FakeBackend(ModelBackend):
         self.responses = list(responses or [])
         self.callable_resp = callable_resp
         self.calls: list[str] = []
+        self.prefetches: list = []
         self.loads = 0
         self.stops = 0
 
@@ -26,9 +27,14 @@ class FakeBackend(ModelBackend):
         self.loads += 1
 
     def generate(
-        self, prompt: str, max_tokens: int = 2048, temperature: float = 0.2
+        self,
+        prompt: str,
+        max_tokens: int = 2048,
+        temperature: float = 0.2,
+        prefetch_model: Optional[str] = None,
     ) -> GenerationResult:
         self.calls.append(prompt)
+        self.prefetches.append(prefetch_model)
         if self.callable_resp is not None:
             text = self.callable_resp(prompt)
         elif self.responses:

@@ -124,11 +124,13 @@ def run_task(
         port_counter[0] += 1
 
     def _generate(
-        model: str, prompt: str, max_tokens: int, temperature: float, port: int
+        model: str, prompt: str, max_tokens: int, temperature: float, port: int,
+        prefetch_model: Optional[str] = None,
     ) -> GenerationResult:
         if resident_backend is not None:
             out = resident_backend.generate(
-                prompt, max_tokens=max_tokens, temperature=temperature
+                prompt, max_tokens=max_tokens, temperature=temperature,
+                prefetch_model=prefetch_model,
             )
             out.evict_s = 0.0
             return out
@@ -137,7 +139,8 @@ def run_task(
         try:
             backend.start()
             out = backend.generate(
-                prompt, max_tokens=max_tokens, temperature=temperature
+                prompt, max_tokens=max_tokens, temperature=temperature,
+                prefetch_model=prefetch_model,
             )
             return out
         finally:
@@ -159,6 +162,7 @@ def run_task(
                 out = _generate(
                     models["reason"], reason_prompt(task_id, problem, starter),
                     max_tokens, temperature, port_counter[0],
+                    prefetch_model=models["code"],  # G2.2: load CODE while REASON plans
                 )
             except Exception as e:  # noqa: BLE001
                 result["error"] = f"reason phase failed: {e}"
@@ -178,6 +182,7 @@ def run_task(
                 code_prompt(task_id, problem, starter, plan, feedback,
                             transcript=transcript if handoff == "naive" else None),
                 max_tokens, temperature, port_counter[0],
+                prefetch_model=models["review"],  # G2.2: load the critic while CODE writes
             )
         except Exception as e:  # noqa: BLE001
             result["error"] = f"code phase failed: {e}"
@@ -217,6 +222,7 @@ def run_task(
                 critic_prompt(task_id, problem, candidate, g["output_tail"],
                               transcript=transcript if handoff == "naive" else None),
                 max_tokens, temperature, port_counter[0],
+                prefetch_model=models["code"],  # G2.2: load CODE while the critic reviews
             )
         except Exception as e:  # noqa: BLE001
             result["error"] = f"critic phase failed: {e}"

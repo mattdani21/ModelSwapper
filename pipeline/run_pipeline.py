@@ -75,6 +75,8 @@ def main() -> None:
                     help="capsule = structured handoff (Phase 1); naive = full verbatim transcript (G2.3 ablation)")
     ap.add_argument("--resident", action="store_true",
                     help="one model (reason) serves every phase, no swaps — single-model ablation arm")
+    ap.add_argument("--backend", choices=["llama", "overlap"], default="llama",
+                    help="llama = per-phase start/stop (Phase 1); overlap = two-slot prefetch engine (G2.2)")
     args = ap.parse_args()
 
     models = json.loads(args.models_json)
@@ -105,6 +107,7 @@ def main() -> None:
         "mode": "swap-per-phase (each phase loads its specialist fresh, evicts after)",
         "handoff": args.handoff,
         "resident": args.resident,
+        "backend": args.backend,
     }
 
     results = []
@@ -112,11 +115,27 @@ def main() -> None:
     for i, tdir in enumerate(tasks, 1):
         task_id = os.path.basename(tdir)
         print(f"[{i}/{len(tasks)}] {task_id} ...", flush=True)
+        engine = None
         try:
+            if args.backend == "overlap":
+                from runtime.overlap import PrefetchEngine
+                from runtime.overlap_backend import OverlapBackend
+                ceiling = float(os.environ.get("OVERLAP_CEILING_GB", "20.0"))
+                task_engine = PrefetchEngine(ceiling_gb=ceiling,
+                                             port_base=args.port_base + i * 50)
+                engine = task_engine
+                memo: dict = {}
+
+                def factory(model_path: str, port: int):
+                    if model_path not in memo:
+                        memo[model_path] = OverlapBackend(task_engine, model_path)
+                    return memo[model_path]
+            else:
+                factory = LlamaBackend
             r = run_task(
                 tdir,
                 models,
-                LlamaBackend,
+                factory,
                 max_iterations=args.max_iterations,
                 max_tokens=args.max_tokens,
                 temperature=args.temperature,
@@ -136,6 +155,9 @@ def main() -> None:
                 tests_total=0,
                 error=str(e),
             )
+        finally:
+            if engine is not None:
+                engine.stop()
         results.append(result_to_dict(r))
         print(f"    -> {'PASS' if r.passed else 'FAIL'} ({r.tests_passed}/{r.tests_total}) "
               f"in {r.wall_clock_s}s, {len(r.phases)} phases, {r.iterations} iterations", flush=True)
