@@ -27,6 +27,12 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
 - Fails: feature-08 (9/10), refactor-12 (8/9) — both single-test near-misses
 - Raw data: `benchmarks/results/baseline-deepseek-v4-pro-20260807-001937.json`
 - **Phase 1 parity target derived:** ≥ 80% of 96% → pipeline must pass ≥ 76.8% absolute (G1.2)
+- **Phase 1 result (2026-08-19, Colab L4, 27B Q4 + 8B Q4, swap-per-phase):**
+  **40/50 = 80.0% — G1.2 MET** (bar 76.8%). bugfix 12/17, feature 16/17
+  (won feature-08 vs baseline), refactor 12/16. Mean wall 40.0s (2.07× API,
+  G1.3 near-miss by 1.4s), mean load 1.96s, mean evict 0.17s. Retry loop
+  recovered 10 tasks. Report: docs/parity-report-phase1.md. G1.3 pending
+  (A100 rerun or resident-mode), G1.5 pending 24 GB Air measurement.
 
 ## Broken / incomplete
 
