@@ -49,20 +49,20 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
 
 ## Phase 2 (active) — engineering down the swap
 
-- **G2.2 overlap engine DONE + measured (T4)**: `runtime/overlap.py` two-slot
-  prefetch (load B while A generates; promote; memory-ceiling guard; sequential
-  fallback; unique ports; self-reaping threads). Measured 4B→0.6B warm:
-  sequential 0.851 s → overlapped **0.063 s (92.6% hidden)** —
-  `benchmarks/results/swap-overlap-20260820-112658.json`.
-- **G2.4 capsule compression v1 DONE**: `capsule/compress.py` (8k default
-  budget, verbatim core, roll-ups, summarizer hook, sub-linear growth tests).
-- **G2.3 ablation runner DONE**: `benchmarks/harness/run_ablation.py` —
-  capsule / naive / single arms, machine-emitted verdict; handoff modes +
-  `--resident` in the pipeline. Local 4B smoke run in progress; full 27B-scale
-  run is a Colab job.
-- **G2.1 (warm swap ≤ 1.5 s at 27B scale)**: not yet measured at scale —
-  engine is ready; Colab run pending. T4 sequential warm swap already 0.85 s.
-- Issues: G2.1–G2.4 = #12–#15 (milestone "Phase 2 — Engineering down the swap").
+- **G2.3 CLOSED (2026-08-20, 27B scale, 8192 ctx)**: capsule 8/8 (100%) @ 788
+  tok vs naive 7/8 (87.5%) @ 1663 tok vs single 8/8 (100%) @ 999 tok — verdict
+  both halves TRUE (quality ≥, memory strictly better, −53% context). Capsule
+  also the fastest arm (20.9 s/task). Report: docs/ablation-capsule-vs-naive.md.
+- **G2.2 overlap engine**: mechanics proven at 27B scale (load hiding
+  consistent across two A/B runs: 1.04/0.842 vs 1.881/2.099 s/phase; promoted
+  swaps pay 0). Wall-clock A/B noisy at n=8 — formal close + G1.3 need the
+  full 50-task overlap run (notebook colab-phase2-eval.ipynb, ABLATION_LIMIT=50).
+- **G2.4 capsule compression v1**: done (8k budget, sub-linear growth, tests).
+- **G2.1 (warm swap ≤ 1.5 s at 27B scale)**: met via the overlap mechanism
+  (visible swap = promote, mean paid load 0.842 s); raw sequential 27B load
+  remains ~2 s (never paid under overlap).
+- Issues: G2.3 (#14) closed; G2.1/G2.2/G2.4 = #12/#13/#15 open (milestone
+  "Phase 2 — Engineering down the swap").
 - ADR-0005 accepted.
 
 ## Blockers
