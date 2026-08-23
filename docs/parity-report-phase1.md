@@ -28,11 +28,18 @@
 
 ## The retry loop's contribution
 
-10 tasks needed the critic loop: 4 resolved in 2 iterations, 6 in 3 (max).
-Without the loop the raw single-shot rate was ~30/50; the REVIEW → CRITIC → CODE
-cycle recovered 10 tasks (25% of the final score). This is the pipeline's
-structural advantage over a single API call — the same loop applied to a
-frontier model would likely push the baseline itself higher.
+> **CORRECTED 2026-08-21 (Addendum 4):** the original claim below was wrong
+> for this run — all 40 passes were pass@1 (`iterations == 1`); the 10
+> retried tasks all failed. Retries rescued ZERO tasks in the 40/50 run.
+> The retry loop demonstrably rescues tasks only in the post-fix config
+> (47/50 run: 6 of 47 passes at iterations==2). See Addendum 4.
+
+(Original text, retracted: "10 tasks needed the critic loop: 4 resolved in
+2 iterations, 6 in 3 (max). Without the loop the raw single-shot rate was
+~30/50; the REVIEW → CRITIC → CODE cycle recovered 10 tasks (25% of the
+final score). This is the pipeline's structural advantage over a single
+API call — the same loop applied to a frontier model would likely push
+the baseline itself higher.")
 
 ## Timings & swap physics
 
@@ -68,8 +75,9 @@ frontier model would likely push the baseline itself higher.
 
 1. The swap-thesis quality claim is **measured, not assumed**: 80% of a
    frontier API's pass rate, at 27B-class specialists, swap-per-phase.
-2. The retry loop is the differentiator (10 recoveries) — Phase 2's capsule
-   work (G2.3) targets whether context-preservation lifts it further.
+2. Retry-loop contribution corrected in Addendum 4: 40/50 run was pass@1-
+   only; the 47/50 run rescued 6/47 via retries. The loop is a real but
+   modest lever post-fix, not a 25% differentiator.
 3. Remaining Phase 1 items: G1.3 (1.4 s gap — A100 rerun), G1.5 (T0 memory
    ceiling on the 24 GB Air), confirmation run.
 
@@ -119,7 +127,10 @@ Same config, temperature 0.2, on Colab **RTX PRO 6000 Blackwell (97.9 GB)**, fre
 
 **Verdict:**
 - **G1.2 (parity ≥ 76.8%) MET and CONFIRMED** — two independent sessions on two different GPUs at the documented operating point (0.2): 80.0% and 78.0%, both above the bar. The claim is no longer single-run.
-- **Temperature sensitivity is the dominant variance term, measured cleanly:** at 0.2 the pipeline is stable (±1 task across sessions); at 0.6 it drops to 70% — feature tasks (spec-adherence) collapse at higher temperature while bugfix improves slightly. 0.2 is the correct operating point and is now the notebook default.
+- **Temperature sensitivity (downgraded per Addendum 4):** the 0.6 run's
+  35/50 is confounded — 11 of its 15 failures were a code defect
+  (NameError on server-start failure), not temperature. Direction
+  plausible, clean measurement outstanding.
 - **G1.3 remains a documented near-miss on both GPUs** (2.07× and 2.30× vs the 2× bar; API mean 19.3 s). Wall time is dominated by phase serialization + retries, not generation bandwidth — the bigger GPU did not move the mean. Lever: resident mode / fewer retries (Phase 2 work).
 - **Stable core across all three runs:** the tasks that pass at both temperatures (29/50) and the two-0.2-run overlap bound the honest floor; the committed per-task JSONs make every number auditable.
 
@@ -151,3 +162,47 @@ remaining wall is tokens. Pass rates within run-to-run noise (45 vs 47).
 the gap: (a) the multi-arch build runs Blackwell via PTX JIT (sm_89→sm_100)
 — a native-arch build (`100;120`) is the obvious next lever; (b) retry
 storms. Not hidden — on record with the data.
+
+---
+
+## Addendum 4 — Audit corrections (2026-08-21, verified against committed JSONs)
+
+An independent reasoner (claude-opus-5, opencode) audited the repo and
+flagged claims that contradict the committed data. Every item below was
+re-verified by hand against `benchmarks/results/` before this addendum
+was written.
+
+1. **The retry-rescue claim is inverted for the 40/50 run.** All 40 passes
+   in `pipeline-colab-27b-20260819-40of50.json` have `iterations == 1`
+   (pass@1). All 10 tasks with `iterations > 1` FAILED. The earlier
+   "retry loop rescued 10 tasks (25% of the score)" claim (this report
+   §2, closeout §3) is WRONG for that run and is retracted. In the later
+   47/50 run (post-fix) the loop did rescue 6 tasks: 41 pass@1 + 6 at
+   iterations==2.
+2. **Three full runs were partly corrupted by a code defect**
+   (`cannot access local variable 'out'` when a server start failed):
+   5/10 failures in the 40/50 run, 8/11 in the 39/50 run, 11/15 in the
+   35/50 run. The defect was fixed in the Phase-2 refactor. The
+   "temperature is the dominant variance term" conclusion drawn from the
+   0.6 run (35/50) is therefore NOT clean — 11 of its 15 failures were
+   the crash, not temperature. The conclusion is downgraded to
+   "temperature sensitivity: plausible direction, confounded by the
+   defect; not cleanly measured".
+3. **Protocol asymmetry:** pass@1 comparison is 41/50 (pipeline) vs
+   48/50 (API baseline, single shot). The headline parity figure
+   (47/50) includes retries the baseline was never given. Honest
+   phrasing going forward: "41/50 single-shot vs 48/50 single-shot
+   (McNemar p ≈ 1.0 — statistically indistinguishable on this suite);
+   47/50 with the retry loop."
+4. **Cost:** the only measured cost comparison in the repo: API
+   $0.15/suite vs pipeline ≈ $0.70/suite on rented L4 ≈ **4.7× the API**.
+   The "1/50th cost" north-star claim is NOT supported by any committed
+   measurement. The defensible claim is sovereignty, not savings:
+   "zero marginal cost and zero data egress on hardware the user owns."
+5. **Stability:** across four full runs at temp 0.2, 19/50 tasks flipped
+   at least once; 30/50 passed in all four. Headline range 35–47/50.
+   The stable-core (58%) framing stays the honest conservative read.
+6. **Unchanged by the audit:** the capsule-vs-naive result (788 vs 1663
+   tok, replicated twice) — real and mechanism-backed; the sacred suite
+   untouched since 2026-08-07 (verified in git); RED/GREEN reproduces
+   (50/50, re-run during the audit).

@@ -48,15 +48,15 @@ Reports: `docs/parity-report-phase1.md` (main + 2 addenda), this closeout.
 2. **Swap-per-phase works at scale**: 27B weights in/out in ~2 s load / 0.2 s
    evict per phase on Colab-class NVMe-backed infra; the pipeline completed
    every run without a single memory-pressure failure.
-3. **The retry loop is the differentiator**: REVIEW→CRITIC→CODE cycles rescued
-   10 of 40 passes on the L4 run (~25% of the score). Single-shot would have
-   been ≈ 30/50 — below the bar.
+3. **Retry loop: claim corrected (Addendum 4)** — the 40/50 run was
+   pass@1-only (all retried tasks failed); the 47/50 run rescued 6/47.
+   The loop is a modest post-fix lever, not a 25% differentiator.
 4. **The deterministic router is correct-by-construction**: 100% of phase
    transitions correct across ~900 phases; the always-on tiny model is not
    needed until Phase 3/4.
-5. **Temperature is the dominant variance term**: 0.2 stable (±1 task across
-   sessions/GPUs), 0.6 collapses (feature −5). Operating point: 0.2, now the
-   notebook default.
+5. **Temperature conclusion downgraded (Addendum 4)** — the 0.6 run
+   (35/50) was corrupted by a code defect (11/15 failures = NameError
+   crash); direction plausible, not cleanly measured.
 
 ## 4. Failure classes found and fixed (worth their weight)
 
