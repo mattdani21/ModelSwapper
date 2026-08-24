@@ -29,10 +29,16 @@ vs. a REASON → CODE → REVIEW swap-pipeline of ≤ 27B-class specialists.**
   [`benchmarks/results/baseline-deepseek-v4-pro-20260807-001937.json`
   (tasks_passed=48, pass_rate=0.96, per-category), STATE.md].
 - SwapOS pipeline, sequential backend, 8192 ctx, temp 0.2, capsule handoff:
-  **47/50 = 94.0%** — bugfix 17/17, feature 17/17, refactor 13/16
+  **47/50 = 94.0% with the retry loop** — bugfix 17/17, feature 17/17,
+  refactor 13/16; 6 of the 47 passes came via the retry loop, so
+  **pass@1 is 41/50**
   [`benchmarks/results/sequential-colab-27b-20260820-full50-8192.json`,
-  STATE.md]. That is **97.9% of the frontier baseline's rate** (47/48)
-  [computed from the two files above; ratio stated in STATE.md].
+  STATE.md, docs/parity-report-phase1.md addendum 4 item 1]. That is
+  **97.9% of the frontier baseline's rate** (47/48) [computed from the two
+  files above; ratio stated in STATE.md]. The baseline is single-shot
+  (48/50), so the honest pass@1 comparison is **41/50 single-shot vs 48/50
+  single-shot (McNemar p ≈ 1.0 — statistically indistinguishable on this
+  suite)** [docs/parity-report-phase1.md addendum 4 item 3].
 - Overlap engine, same config: **45/50 = 90.0%**
   [`benchmarks/results/overlap-colab-27b-20260820-full50-8192.json`].
 - The Phase-1 bar (G1.2) was **≥ 76.8%** (= 80% of the 96.0% baseline) and is
@@ -50,11 +56,14 @@ vs. a REASON → CODE → REVIEW swap-pipeline of ≤ 27B-class specialists.**
 - The 47/50 record rides on two config changes vs the Phase-1 40/50 config:
   context 4096 → 8192 and the bounded (600-char) critic feedback
   [docs/parity-report-phase1.md addendum 3, pipeline/loop.py `feedback[:600]`].
-- **Qualifier that must ship with any public claim:** the result is
-  temperature-sensitive — 0.6 collapses to 35/50 (70.0%); the claim is stated
-  at the **0.2 operating point**, which is the notebook default; the stable
-  core across temperatures is 29/50 (58%) [docs/parity-report-phase1.md
-  addendum 1, `benchmarks/results/pipeline-colab-27b-20260820-35of50-t06.json`].
+- **Qualifier that must ship with any public claim:** temperature
+  sensitivity — plausible direction, confounded by the code defect (11/15 of
+  the 0.6 run's failures were a server-start NameError crash); not cleanly
+  measured (downgraded per Addendum 4). The claim is stated at the **0.2
+  operating point**, which is the notebook default; the stable core across
+  temperatures is 29/50 (58%) [docs/parity-report-phase1.md addendum 2
+  (temperature claim downgraded per Addendum 4), addendum 4 item 2,
+  `benchmarks/results/pipeline-colab-27b-20260820-35of50-t06.json`].
 
 ### 2.2 Swap latency — the swap tax is gone
 
