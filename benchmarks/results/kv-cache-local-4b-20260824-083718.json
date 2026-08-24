@@ -1,0 +1,395 @@
+{
+  "goal": "G1.3",
+  "issue": 16,
+  "lever": "cross-turn KV prefix cache for retry phases (FreeToken-style)",
+  "run_at": "20260824-083718",
+  "host": {
+    "machine": "Apple M3 (arm64)",
+    "ram_gb": 8.0,
+    "tier": "T4",
+    "backend": "llama.cpp llama-server b10270 (Metal)",
+    "models": "Qwen3-4B-Q4_K_M (code/reason), Qwen3-0.6B-Q8_0 (review)",
+    "context": 8192,
+    "n_parallel": 1,
+    "max_tokens": 2048,
+    "temperature": 0.2,
+    "max_iterations": 3
+  },
+  "files": {
+    "baseline": "kv-cache-local-4b-20260824-083718-baseline.json",
+    "cached": "kv-cache-local-4b-20260824-083718-cached.json"
+  },
+  "tasks_total": 9,
+  "per_task": [
+    {
+      "task_id": "bugfix-01",
+      "category": "bugfix",
+      "baseline": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 159.56
+      },
+      "cached": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 162.86,
+        "kv_restore_hits": 0
+      }
+    },
+    {
+      "task_id": "bugfix-02",
+      "category": "bugfix",
+      "baseline": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 156.89
+      },
+      "cached": {
+        "passed": true,
+        "iterations": 2,
+        "retry_code_phases": 1,
+        "retry_prefill_ms": 905.7,
+        "retry_prompt_tokens": 248,
+        "wall_s": 273.55,
+        "kv_restore_hits": 1
+      }
+    },
+    {
+      "task_id": "bugfix-03",
+      "category": "bugfix",
+      "baseline": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 157.99
+      },
+      "cached": {
+        "passed": false,
+        "iterations": 3,
+        "retry_code_phases": 2,
+        "retry_prefill_ms": 1657.0,
+        "retry_prompt_tokens": 421,
+        "wall_s": 397.63,
+        "kv_restore_hits": 2
+      }
+    },
+    {
+      "task_id": "bugfix-07",
+      "category": "bugfix",
+      "baseline": {
+        "passed": true,
+        "iterations": 2,
+        "retry_code_phases": 1,
+        "retry_prefill_ms": 8502.9,
+        "retry_prompt_tokens": 2518,
+        "wall_s": 276.74
+      },
+      "cached": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 160.22,
+        "kv_restore_hits": 0
+      }
+    },
+    {
+      "task_id": "bugfix-13",
+      "category": "bugfix",
+      "baseline": {
+        "passed": false,
+        "iterations": 3,
+        "retry_code_phases": 2,
+        "retry_prefill_ms": 17920.6,
+        "retry_prompt_tokens": 5116,
+        "wall_s": 392.61
+      },
+      "cached": {
+        "passed": false,
+        "iterations": 3,
+        "retry_code_phases": 2,
+        "retry_prefill_ms": 1384.2,
+        "retry_prompt_tokens": 335,
+        "wall_s": 390.96,
+        "kv_restore_hits": 2
+      }
+    },
+    {
+      "task_id": "feature-04",
+      "category": "feature",
+      "baseline": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 109.6
+      },
+      "cached": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 167.09,
+        "kv_restore_hits": 0
+      }
+    },
+    {
+      "task_id": "feature-12",
+      "category": "feature",
+      "baseline": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 155.22
+      },
+      "cached": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 165.54,
+        "kv_restore_hits": 0
+      }
+    },
+    {
+      "task_id": "refactor-05",
+      "category": "refactor",
+      "baseline": {
+        "passed": true,
+        "iterations": 3,
+        "retry_code_phases": 2,
+        "retry_prefill_ms": 19600.4,
+        "retry_prompt_tokens": 5537,
+        "wall_s": 403.74
+      },
+      "cached": {
+        "passed": true,
+        "iterations": 1,
+        "retry_code_phases": 0,
+        "retry_prefill_ms": 0,
+        "retry_prompt_tokens": 0,
+        "wall_s": 166.45,
+        "kv_restore_hits": 0
+      }
+    },
+    {
+      "task_id": "refactor-12",
+      "category": "refactor",
+      "baseline": {
+        "passed": false,
+        "iterations": 3,
+        "retry_code_phases": 2,
+        "retry_prefill_ms": 17706.9,
+        "retry_prompt_tokens": 5123,
+        "wall_s": 394.16
+      },
+      "cached": {
+        "passed": false,
+        "iterations": 3,
+        "retry_code_phases": 2,
+        "retry_prefill_ms": 1252.7,
+        "retry_prompt_tokens": 316,
+        "wall_s": 386.12,
+        "kv_restore_hits": 2
+      }
+    }
+  ],
+  "retry_phase_prefill": {
+    "baseline_ms": 63730.9,
+    "cached_ms": 5199.6,
+    "reduction_pct": 91.8,
+    "baseline_tokens": 18294,
+    "cached_tokens": 1320,
+    "token_reduction_pct": 92.8,
+    "restore_hits": 7,
+    "restore_misses": 0,
+    "saves": 9,
+    "per_retry_phase": [
+      {
+        "task": "bugfix-07",
+        "attempt": 2,
+        "mode": "baseline",
+        "prompt_n": 2518,
+        "prompt_ms": 8502.9,
+        "kv_used": false
+      },
+      {
+        "task": "bugfix-13",
+        "attempt": 2,
+        "mode": "baseline",
+        "prompt_n": 2545,
+        "prompt_ms": 8852.8,
+        "kv_used": false
+      },
+      {
+        "task": "bugfix-13",
+        "attempt": 3,
+        "mode": "baseline",
+        "prompt_n": 2571,
+        "prompt_ms": 9067.8,
+        "kv_used": false
+      },
+      {
+        "task": "refactor-05",
+        "attempt": 2,
+        "mode": "baseline",
+        "prompt_n": 2766,
+        "prompt_ms": 9672.2,
+        "kv_used": false
+      },
+      {
+        "task": "refactor-05",
+        "attempt": 3,
+        "mode": "baseline",
+        "prompt_n": 2771,
+        "prompt_ms": 9928.2,
+        "kv_used": false
+      },
+      {
+        "task": "refactor-12",
+        "attempt": 2,
+        "mode": "baseline",
+        "prompt_n": 2556,
+        "prompt_ms": 8699.0,
+        "kv_used": false
+      },
+      {
+        "task": "refactor-12",
+        "attempt": 3,
+        "mode": "baseline",
+        "prompt_n": 2567,
+        "prompt_ms": 9007.9,
+        "kv_used": false
+      },
+      {
+        "task": "bugfix-02",
+        "attempt": 2,
+        "mode": "cached",
+        "prompt_n": 248,
+        "prompt_ms": 905.7,
+        "kv_used": true
+      },
+      {
+        "task": "bugfix-03",
+        "attempt": 2,
+        "mode": "cached",
+        "prompt_n": 161,
+        "prompt_ms": 662.2,
+        "kv_used": true
+      },
+      {
+        "task": "bugfix-03",
+        "attempt": 3,
+        "mode": "cached",
+        "prompt_n": 260,
+        "prompt_ms": 994.8,
+        "kv_used": true
+      },
+      {
+        "task": "bugfix-13",
+        "attempt": 2,
+        "mode": "cached",
+        "prompt_n": 165,
+        "prompt_ms": 707.0,
+        "kv_used": true
+      },
+      {
+        "task": "bugfix-13",
+        "attempt": 3,
+        "mode": "cached",
+        "prompt_n": 170,
+        "prompt_ms": 677.2,
+        "kv_used": true
+      },
+      {
+        "task": "refactor-12",
+        "attempt": 2,
+        "mode": "cached",
+        "prompt_n": 153,
+        "prompt_ms": 583.6,
+        "kv_used": true
+      },
+      {
+        "task": "refactor-12",
+        "attempt": 3,
+        "mode": "cached",
+        "prompt_n": 163,
+        "prompt_ms": 669.0,
+        "kv_used": true
+      }
+    ],
+    "paired_tasks": {
+      "count": 2,
+      "baseline_ms": 35627.5,
+      "cached_ms": 2636.9,
+      "reduction_pct": 92.6,
+      "per_task": [
+        {
+          "task_id": "bugfix-13",
+          "retry_phases_each": 2,
+          "baseline_retry_prefill_ms": 17920.6,
+          "cached_retry_prefill_ms": 1384.2,
+          "reduction_pct": 92.3
+        },
+        {
+          "task_id": "refactor-12",
+          "retry_phases_each": 2,
+          "baseline_retry_prefill_ms": 17706.9,
+          "cached_retry_prefill_ms": 1252.7,
+          "reduction_pct": 92.9
+        }
+      ]
+    },
+    "acceptance_bar": ">= 50% prefill reduction",
+    "acceptance_met": true
+  },
+  "pass_rate": {
+    "baseline": {
+      "passed": 7,
+      "total": 9,
+      "rate": 0.7778
+    },
+    "cached": {
+      "passed": 6,
+      "total": 9,
+      "rate": 0.6667
+    },
+    "delta_explained": "cached lost bugfix-03, which failed on its FIRST attempt; the KV cache is inert on attempt 1 (identical code path, the slot save happens after generation), so the delta is sampler noise (temp 0.2, random seed), not a cache regression.",
+    "no_regression_bar": "cached >= baseline (sampler noise excepted)"
+  },
+  "prefill_share_of_wall_4b": {
+    "all_code_prefill_pct": 6.07,
+    "retry_code_prefill_pct": 2.89,
+    "note": "the lever can only move the retry-prefill slice of wall time"
+  },
+  "g1_3_projection_27b": {
+    "basis": "committed overlap-colab-27b-20260820-full50-8192.json (45/50, 2.12x API)",
+    "wall_total_s": 2041.5,
+    "retry_code_phases": 15,
+    "retry_prefill_s_27b": 10.48,
+    "retry_prefill_share_pct": 0.51,
+    "overlap_ratio_now": 2.12,
+    "projected_overlap_ratio_with_measured_reduction": 2.11,
+    "upper_bound_ratio_if_retry_prefill_eliminated": 2.109,
+    "bar": "2.0x",
+    "note": "at 27B scale retry prefill is ~0.5% of wall (generation dominates); this lever alone cannot close 2.12x -> <2x. Missing a target is data, not failure."
+  },
+  "methodology": "Same 9 tasks, both modes, identical args except --kv-cache-dir. Baseline ran first. Prefill time = llama-server-reported timings.prompt_ms (final stream chunk); retry code phases = 2nd+ code attempt per task. Cached mode: after attempt 1 the slot (task+starter+plan prefix + generated tail) is checkpointed via POST /slots/0?action=save; retries restore it (action=restore) and the server re-prefills only the suffix past the longest common prefix. Any restore failure falls back to a full prefill (correctness first). Pass rates include sampler noise (temp 0.2)."
+}
