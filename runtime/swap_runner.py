@@ -28,6 +28,11 @@ LLAMA_SERVER = os.environ.get("LLAMA_SERVER", "llama-server")
 CONTEXT = int(os.environ.get("LLAMA_CONTEXT", "2048"))
 N_PREDICT = int(os.environ.get("LLAMA_N_PREDICT", "48"))
 NGPU_LAYERS = os.environ.get("LLAMA_NGPU", "99")  # Metal: all layers
+# Single server slot (the llama-server auto default splits -c across 4 slots
+# of n_ctx/4 each, which silently halves the per-phase context AND makes the
+# slot-save/restore API land on an unpredictable slot id; the pipeline is
+# strictly sequential so one slot is the honest config).
+NPARALLEL = os.environ.get("LLAMA_NPARALLEL", "1")
 PROMPT = "Write a short Python function that computes the Fibonacci sequence. Output only code."
 
 
@@ -64,9 +69,11 @@ def process_rss_kb(pid: int) -> Optional[int]:
 class Server:
     """One llama-server instance (one resident model)."""
 
-    def __init__(self, model_path: str, port: int):
+    def __init__(self, model_path: str, port: int,
+                 slot_save_path: Optional[str] = None):
         self.model_path = model_path
         self.port = port
+        self.slot_save_path = slot_save_path
         self.name = os.path.basename(model_path)
         self.proc: Optional[subprocess.Popen] = None
         self.load_s = -1.0
@@ -76,16 +83,21 @@ class Server:
         t0 = time.monotonic()
         self._errf = tempfile.NamedTemporaryFile(mode="w+", suffix=".log", delete=False)
         self._err_path = self._errf.name
+        cmd = [
+            LLAMA_SERVER,
+            "--model", self.model_path,
+            "--port", str(self.port),
+            "-c", str(CONTEXT),
+            "-ngl", NGPU_LAYERS,
+            "-np", NPARALLEL,
+            "--no-webui",
+            "--log-disable",
+        ]
+        if self.slot_save_path:
+            os.makedirs(self.slot_save_path, exist_ok=True)
+            cmd += ["--slot-save-path", self.slot_save_path]
         self.proc = subprocess.Popen(
-            [
-                LLAMA_SERVER,
-                "--model", self.model_path,
-                "--port", str(self.port),
-                "-c", str(CONTEXT),
-                "-ngl", NGPU_LAYERS,
-                "--no-webui",
-                "--log-disable",
-            ],
+            cmd,
             stdout=subprocess.DEVNULL,
             stderr=self._errf,
         )
@@ -208,6 +220,7 @@ def main() -> None:
         "os": "macOS 26.6",
         "backend": "llama.cpp (llama-server)",
         "context": CONTEXT,
+        "n_parallel": NPARALLEL,
         "n_predict": N_PREDICT,
         "ngpu_layers": NGPU_LAYERS,
         "can_force_purge": can_purge,

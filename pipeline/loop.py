@@ -46,6 +46,28 @@ def _generate(
     return out
 
 
+def kv_checkpoint_name(model_path: str, task_id: str, problem: str,
+                       starter: str, plan: str) -> str:
+    """Deterministic slot-checkpoint filename for the CODE phase prefix.
+
+    The cross-turn KV cache (G1.3, issue #16) is keyed per
+    (model, task, plan): the code prompt's task + starter + plan section is
+    byte-identical across retries (only the bounded reviewer feedback
+    changes), so the checkpoint taken after the first code attempt can be
+    restored on every retry. Model file size is mixed in so a swapped GGUF
+    under the same path cannot silently reuse a stale checkpoint.
+    """
+    import hashlib
+    try:
+        size = os.path.getsize(model_path)
+    except OSError:
+        size = 0
+    h = hashlib.sha256(
+        f"{model_path}:{size}:{task_id}:{problem}:{starter}:{plan}".encode()
+    ).hexdigest()[:20]
+    return f"kv-{h}.bin"
+
+
 def _log_phase(
     capsule: Capsule,
     phases: list,
@@ -65,6 +87,10 @@ def _log_phase(
         "ttft_s": out.ttft_s if out else None,
         "total_s": out.total_s if out else None,
         "peak_rss_kb": out.peak_rss_kb if out else None,
+        "prompt_n": out.prompt_n if out else None,
+        "prompt_ms": out.prompt_ms if out else None,
+        "kv_used": out.kv_used if out else False,
+        "kv_saved": out.kv_saved if out else False,
     }
     if extra:
         entry.update(extra)
@@ -90,6 +116,7 @@ def run_task(
     capsule_dir: Optional[str] = None,
     handoff: str = "capsule",
     resident: bool = False,
+    kv_cache_dir: Optional[str] = None,
 ) -> TaskRunResult:
     """Run the reason->code->review loop for one task.
 
@@ -99,6 +126,12 @@ def run_task(
         transcript in every prompt (the G2.3 ablation comparator).
     resident=True: one backend (models['reason']) serves every phase with no
         swaps at all — the single-model baseline arm of the G2.3 ablation.
+    kv_cache_dir (G1.3, issue #16): cross-turn KV prefix cache for the CODE
+        phase. After the first code attempt the slot state (task + starter +
+        plan prefix, byte-identical across retries) is checkpointed to disk
+        via llama-server's slot save API; every retry restores that checkpoint
+        so only the feedback suffix is re-prefilled (FreeToken-style). Any
+        restore failure falls back to a full prefill (correctness first).
     """
     if handoff not in ("capsule", "naive"):
         raise ValueError(f"handoff must be 'capsule' or 'naive', got {handoff!r}")
@@ -127,21 +160,27 @@ def run_task(
     def _generate(
         model: str, prompt: str, max_tokens: int, temperature: float, port: int,
         prefetch_model: Optional[str] = None,
+        kv_restore: Optional[str] = None,
+        kv_save: Optional[str] = None,
     ) -> GenerationResult:
         if resident_backend is not None:
             out = resident_backend.generate(
                 prompt, max_tokens=max_tokens, temperature=temperature,
                 prefetch_model=prefetch_model,
+                kv_restore=kv_restore, kv_save=kv_save,
             )
             out.evict_s = 0.0
             return out
         backend = backend_factory(model, port)
+        if kv_cache_dir and hasattr(backend, "configure_kv_cache"):
+            backend.configure_kv_cache(kv_cache_dir)  # type: ignore[attr-defined]
         out: Optional[GenerationResult] = None
         try:
             backend.start()
             out = backend.generate(
                 prompt, max_tokens=max_tokens, temperature=temperature,
                 prefetch_model=prefetch_model,
+                kv_restore=kv_restore, kv_save=kv_save,
             )
             return out
         finally:
@@ -183,12 +222,22 @@ def run_task(
             # on retries (observed: HTTP 400 at 4096 ctx with a 2048-token
             # critic response). The capsule's own convention is 600.
             bounded_feedback = feedback[:600] if feedback is not None else None
+            # G1.3 (issue #16): checkpoint after the FIRST code attempt and
+            # restore on retries — the task+starter+plan prefix is byte-
+            # identical across retries, only feedback changes, so the retry
+            # only re-prefills the feedback suffix (FreeToken-style).
+            ckpt_name = None
+            if kv_cache_dir:
+                ckpt_name = kv_checkpoint_name(
+                    models["code"], task_id, problem, starter, plan)
             out = _generate(
                 models["code"],
                 code_prompt(task_id, problem, starter, plan, bounded_feedback,
                             transcript=transcript if handoff == "naive" else None),
                 max_tokens, temperature, port_counter[0],
                 prefetch_model=models["review"],  # G2.2: load the critic while CODE writes
+                kv_restore=ckpt_name if bounded_feedback is not None else None,
+                kv_save=ckpt_name if bounded_feedback is None else None,
             )
         except Exception as e:  # noqa: BLE001
             result["error"] = f"code phase failed: {e}"

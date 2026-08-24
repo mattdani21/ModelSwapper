@@ -17,6 +17,13 @@ class GenerationResult:
     load_s: Optional[float] = None
     evict_s: Optional[float] = None
     peak_rss_kb: Optional[int] = None
+    # server-reported prompt (prefill) timing from the final stream chunk
+    prompt_n: Optional[int] = None
+    prompt_ms: Optional[float] = None
+    # cross-turn KV prefix cache (G1.3, issue #16): whether a slot checkpoint
+    # was restored before this generation, and whether the slot was saved after
+    kv_used: bool = False
+    kv_saved: bool = False
 
 
 class ModelBackend(ABC):
@@ -35,12 +42,19 @@ class ModelBackend(ABC):
         max_tokens: int = 2048,
         temperature: float = 0.2,
         prefetch_model: Optional[str] = None,
+        kv_restore: Optional[str] = None,
+        kv_save: Optional[str] = None,
     ) -> GenerationResult:
         """Streaming generation with timings.
 
         prefetch_model: optional next specialist to load in the background
         DURING this generation (G2.2). Backends without a standby slot
         ignore it.
+
+        kv_restore/kv_save (G1.3, issue #16): slot checkpoint filename to
+        restore before generation / save after generation (cross-turn KV
+        prefix cache). Backends without slot support ignore them; restores
+        must fall back to a full prefill on any failure (correctness first).
         """
 
     @abstractmethod

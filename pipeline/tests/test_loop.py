@@ -2,10 +2,11 @@
 import json
 import os
 import sys
+import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from pipeline.loop import run_task  # noqa: E402
+from pipeline.loop import run_task, kv_checkpoint_name  # noqa: E402
 from pipeline.prompts import parse_plan  # noqa: E402
 from router.rules import DeterministicRouter  # noqa: E402
 from runtime.fake_backend import FakeBackend  # noqa: E402
@@ -232,3 +233,90 @@ def test_overlap_backend_swaps_and_prefetches(monkeypatch):
     assert r.load_s == 0.0, "promoted swap must report hidden load (0.0)"
     assert r.evict_s == 0.05
     assert r.text == "hi"
+
+
+def _retry_factory(backends, fail_restore=False):
+    """Factory recording backends; code fails attempt 1, passes on retry."""
+    def code(prompt):
+        if "Reviewer feedback" in prompt:
+            return _reference_text()
+        return "def most_common_word(text):\n    return None\n"
+
+    def critic(prompt):
+        return "Implement the real algorithm; the candidate returns None."
+
+    def factory(model_path: str, port: int) -> FakeBackend:
+        name = os.path.basename(model_path)
+        role = {"fake-r.gguf": "reason", "fake-c.gguf": "code", "fake-v.gguf": "review"}.get(name, "review")
+        b = FakeBackend(model_path, callable_resp={
+            "reason": lambda p: "1. plan\n2. implement", "code": code, "review": critic,
+        }[role])
+        b.fail_restore = fail_restore
+        backends.append(b)
+        return b
+    return factory
+
+
+def test_kv_cache_saves_after_first_code_attempt_restores_on_retries():
+    """G1.3 (issue #16): with kv_cache_dir set, the CODE phase checkpoints
+    after attempt 1 and restores the SAME checkpoint on every retry."""
+    backends = []
+    with tempfile.TemporaryDirectory() as kvdir:
+        r = run_task(EXAMPLE, MODELS, _retry_factory(backends),
+                     max_iterations=3, kv_cache_dir=kvdir)
+    assert r.passed is True
+    assert r.iterations == 2
+    code_backends = [b for b in backends if b.model_path.endswith("fake-c.gguf")]
+    assert len(code_backends) == 2  # one fresh server per code phase
+    ops = code_backends[0].kv_ops + code_backends[1].kv_ops
+    saves = [op for op in ops if op[0] == "save"]
+    restores = [op for op in ops if op[0] == "restore"]
+    assert len(saves) == 1, f"attempt 1 must save exactly once, got {saves}"
+    assert len(restores) == 1, f"retry must restore exactly once, got {restores}"
+    assert saves[0][1] == restores[0][1], "retry must restore the attempt-1 checkpoint"
+    # the checkpoint name is deterministic per (model, task, plan) — rebuild it
+    # from the same inputs the loop used (task files + empty plan)
+    with open(os.path.join(EXAMPLE, "problem.md")) as f:
+        problem = f.read()
+    with open(os.path.join(EXAMPLE, "starter", "solution.py")) as f:
+        starter = f.read()
+    # the fake REASON phase returns this exact plan text; task_id = basename
+    assert saves[0][1] == kv_checkpoint_name(MODELS["code"], "_EXAMPLE", problem, starter, "1. plan\n2. implement")
+    # phase records carry the prefill + KV facts
+    code_phases = [p for p in r.phases if p["role"] == "code"]
+    assert code_phases[0]["kv_saved"] is True and code_phases[0]["kv_used"] is False
+    assert code_phases[1]["kv_used"] is True and code_phases[1]["kv_saved"] is False
+    assert code_phases[0]["prompt_n"] == 300 and code_phases[1]["prompt_n"] == 128
+
+
+def test_kv_cache_disabled_passes_no_kv_args():
+    backends = []
+    r = run_task(EXAMPLE, MODELS, _retry_factory(backends), max_iterations=3)
+    assert r.passed is True
+    code_backends = [b for b in backends if b.model_path.endswith("fake-c.gguf")]
+    assert all(b.kv_ops == [] for b in code_backends), "no kv ops without kv_cache_dir"
+    code_phases = [p for p in r.phases if p["role"] == "code"]
+    assert all(p["kv_used"] is False and p["kv_saved"] is False for p in code_phases)
+
+
+def test_kv_restore_failure_falls_back_to_full_prefill():
+    """Correctness first: a failed restore must not fail the phase — the
+    backend falls back to a full prefill and the loop still completes."""
+    backends = []
+    with tempfile.TemporaryDirectory() as kvdir:
+        r = run_task(EXAMPLE, MODELS, _retry_factory(backends, fail_restore=True),
+                     max_iterations=3, kv_cache_dir=kvdir)
+    assert r.passed is True, f"restore failure must not break the retry: {r.error}"
+    retry = [p for p in r.phases if p["role"] == "code"][1]
+    assert retry["kv_used"] is False, "failed restore must report kv_used=False"
+    assert retry["prompt_n"] == 300, "fallback must full-prefill (no cache benefit)"
+
+
+def test_kv_checkpoint_name_deterministic_and_sensitive():
+    base = kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan")
+    assert base == kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan")
+    assert base == kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan")
+    assert base != kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan2")
+    assert base != kv_checkpoint_name("models/code.gguf", "t2", "problem", "starter", "plan")
+    assert base != kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter2", "plan")
+    assert base.startswith("kv-") and base.endswith(".bin")

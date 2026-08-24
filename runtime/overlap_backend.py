@@ -37,6 +37,8 @@ class OverlapBackend(ModelBackend):
         max_tokens: int = 2048,
         temperature: float = 0.2,
         prefetch_model: Optional[str] = None,
+        kv_restore: Optional[str] = None,
+        kv_save: Optional[str] = None,
     ) -> GenerationResult:
         swap_stats = self.engine.swap(self.model_path, 0)
         srv = self.engine.active()

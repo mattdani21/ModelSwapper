@@ -77,6 +77,10 @@ def main() -> None:
                     help="one model (reason) serves every phase, no swaps — single-model ablation arm")
     ap.add_argument("--backend", choices=["llama", "overlap"], default="llama",
                     help="llama = per-phase start/stop (Phase 1); overlap = two-slot prefetch engine (G2.2)")
+    ap.add_argument("--kv-cache-dir", default="",
+                    help="cross-turn KV prefix cache dir for the CODE phase (G1.3, issue #16): "
+                         "slot checkpoints taken after the first code attempt and restored on retries. "
+                         "Empty = disabled (baseline mode).")
     args = ap.parse_args()
 
     models = json.loads(args.models_json)
@@ -97,6 +101,10 @@ def main() -> None:
     )
     os.makedirs(os.path.dirname(out), exist_ok=True)
 
+    kv_cache_dir = args.kv_cache_dir or None
+    if kv_cache_dir:
+        os.makedirs(kv_cache_dir, exist_ok=True)
+
     run_meta = {
         "run_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "models": models,
@@ -108,6 +116,8 @@ def main() -> None:
         "handoff": args.handoff,
         "resident": args.resident,
         "backend": args.backend,
+        "kv_cache": bool(kv_cache_dir),
+        "kv_cache_dir": kv_cache_dir,
     }
 
     results = []
@@ -143,6 +153,7 @@ def main() -> None:
                 capsule_dir=args.capsule_dir or None,
                 handoff=args.handoff,
                 resident=args.resident,
+                kv_cache_dir=kv_cache_dir,
             )
         except Exception as e:  # noqa: BLE001
             print(f"    -> ERROR {e}", flush=True)
@@ -185,6 +196,14 @@ def build_summary(run_meta: dict, results: list, wall_s: float) -> dict:
     loads = [p["load_s"] for r in results for p in r["phases"] if p.get("load_s") is not None]
     evicts = [p["evict_s"] for r in results for p in r["phases"] if p.get("evict_s") is not None]
     ttfts = [p["ttft_s"] for r in results for p in r["phases"] if p.get("ttft_s") is not None]
+    # G1.3 (issue #16): per-run prefill + KV-cache aggregates. Retry code
+    # phases are the 2nd+ code attempt of a task (the only phases the cache
+    # can accelerate).
+    code_phases = [p for r in results for p in r["phases"] if p.get("role") == "code"]
+    retry_code = []
+    for r in results:
+        codes = [p for p in r["phases"] if p.get("role") == "code"]
+        retry_code.extend(codes[1:])
     mean_wall = sum(r["wall_clock_s"] for r in results) / max(1, len(results))
     return {
         **run_meta,
@@ -197,6 +216,16 @@ def build_summary(run_meta: dict, results: list, wall_s: float) -> dict:
         "mean_load_s": round(sum(loads) / len(loads), 3) if loads else None,
         "mean_evict_s": round(sum(evicts) / len(evicts), 3) if evicts else None,
         "mean_ttft_s": round(sum(ttfts) / len(ttfts), 3) if ttfts else None,
+        "prefill": {
+            "code_phases": len(code_phases),
+            "code_prompt_tokens_total": sum(p.get("prompt_n") or 0 for p in code_phases),
+            "code_prefill_ms_total": round(sum(p.get("prompt_ms") or 0 for p in code_phases), 1),
+            "retry_code_phases": len(retry_code),
+            "retry_prompt_tokens_total": sum(p.get("prompt_n") or 0 for p in retry_code),
+            "retry_prefill_ms_total": round(sum(p.get("prompt_ms") or 0 for p in retry_code), 1),
+            "kv_restore_hits": sum(1 for p in retry_code if p.get("kv_used")),
+            "kv_saves": sum(1 for p in code_phases if p.get("kv_saved")),
+        },
     }
 
 
