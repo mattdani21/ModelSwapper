@@ -94,7 +94,7 @@ cost cap $2.0 not hit).
   and `sequential-colab-27b-20260820-full50-8192.json`).
 - Runner commit: `ce4ed25` ("Add symmetric-baseline runner (Step 0
   falsification experiment)").
-- This doc: commit `DOC_COMMIT_PLACEHOLDER` — **git commit was blocked by the
-  sandbox** (index.lock write outside the workspace; escalation unavailable),
-  so the doc-hash placeholder stands. Commands to run outside the sandbox:
-  `git add docs/symmetric-baseline.md && git commit -m "docs: symmetric-baseline Step 0 falsification evidence/verdict (48/50, loop adds zero passes, parity survives)"`.
+- This doc: commit `f99c70e` ("docs: symmetric-baseline Step 0 falsification
+  evidence/verdict"). The runner commit `ce4ed25` and this doc commit are on
+  `wt/symmetric-baseline`; both were committed by the wrapper (dsh's sandbox
+  blocks git index.lock writes outside its workspace).
