@@ -2,7 +2,22 @@
 
 ## Current state
 
-- **Phase 0 — Foundation: in progress (kickoff).** Repo skeleton, governance docs, ADRs 0001–0003, Capsule v0 schema + round-trip tests, benchmark harness + 50-task suite, frontier-API baseline run, and first swap-baseline measurements all landing in this pass.
+- **G1.3 lever (issue #16) IMPLEMENTED + MEASURED + reviewer-approved:**
+  cross-turn KV prefix cache for retry phases — retry-phase prefill
+  **63.7 s → 5.2 s (−91.8%**, acceptance bar ≥ 50% **MET**; paired tasks
+  **−92.6%**; **7/7 restore hits, 0 misses**). Evidence:
+  `benchmarks/results/kv-cache-local-4b-20260824-083718.json` +
+  `docs/g1.3-kv-prefix-cache.md`.
+- **Honest G1.3 projection:** at 27B scale retry prefill is only **0.51% of
+  wall**, so this lever moves 2.12× → **~2.11×** and **CANNOT close the <2×
+  bar alone — G1.3 (#7) remains open**. Next levers: retry-storm reduction
+  and native-arch llama builds (documented hypotheses,
+  docs/parity-report-phase1.md Addendum 3).
+- **Four-number proof draft landed:** `docs/four-number-proof.md`
+  (reconciled with Addendum 4; publication founder-gated per ENDGAME.md).
+- **G2.4 capsule-v1 integration note landed:** `docs/g2.4-capsule-v1-integration.md`;
+  issue #15 CLOSED.
+- **Phase 0 — Foundation: complete.** Repo skeleton, governance docs, ADRs 0001–0003, Capsule v0 schema + round-trip tests, benchmark harness + 50-task suite, frontier-API baseline run, and first swap-baseline measurements all landed.
 - **Hardware reality:** development machine is an **Apple M3, 8 GB unified memory** (`sysctl hw.memsize` = 8.0 GB) — that is the **T4 edge tier**, not the T0 target. All Phase 0 swap numbers are measured on this machine as T4-class data; T0 (24 GB) targets remain the trajectory and must be re-measured on real T0 hardware when available.
 - **Frontier baseline:** `deepseek-v4-pro` via DeepSeek API (only provider available with an existing key; frontier-class, used strictly for baseline measurement — the core pipeline stays local per §4).
 - **Backend:** llama.cpp (Homebrew, Metal-capable) installed on the dev machine. Model candidates (official Qwen GGUFs): Qwen3-4B-Q4_K_M (2.5 GB), Qwen3-8B-Q4_K_M (5.0 GB), Qwen3-0.6B-Q8_0 (0.64 GB, router-class).
@@ -44,6 +59,12 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
 
 ## Broken / incomplete
 
+- **G1.3 (#7) open:** the <2× wall bar is not met — 2.12× (overlap) /
+  2.18× (sequential) vs 2× bar. The KV-prefix-cache lever is measured
+  (−91.8% retry prefill) but retry prefill is only 0.51% of 27B wall, so
+  the projected best case is ~2.11× — cannot close alone.
+- **G1.5 (#9) open:** T0 (24 GB Air) measurement pending — runbook
+  prepared, not yet measured.
 - `runtime/` — swap engine v0 exists (subprocess llama-server: load/generate/evict/measure); in-process engine (mmap, layer-priority, pre-fetch) is Phase 2.
 - `pipeline/` and `router/` — empty stubs by design (Phase 1).
 - Benchmark suite: **50/50 tasks authored + RED/GREEN verified**; frontier baseline measured (48/50, 96.0%)
@@ -59,15 +80,27 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
   dominated at 27B scale); quality 45/50 vs 47/50 within noise.
 - **G2.1 CLOSED**: met via overlap (mean paid load 0.806 s < 1.5 s bar;
   promoted swaps pay 0; local T4 direction 0.851 → 0.063 s).
-- **G2.4**: done (8k budget, sub-linear growth, tests) — issue #15 open
-  pending the capsule-v1-in-pipeline integration note.
+- **G2.4 CLOSED (#15)**: compression done (8k budget, sub-linear growth,
+  tests) and the capsule-v1 integration note
+  (`docs/g2.4-capsule-v1-integration.md`) landed + approved — compression
+  stays intentionally unwired from the running loop (by design, per the
+  note); it is the designated overflow mechanism for long-horizon runs.
 - **G1.2 RE-CONFIRMED at 94.0%** (sequential 47/50, 8192 ctx + bounded
   feedback): bugfix 17/17, feature 17/17 — 97.9% of the frontier baseline.
   Overlap 45/50 (90.0%). The 8192 context + feedback bound unlocked the
   retry loop the 4096 config was choking.
-- **G1.3 near-miss stands**: 2.12× (overlap) / 2.18× (sequential) vs 2×
-  bar. Lever: native-arch llama build (Blackwell currently runs PTX JIT).
-- Issues: G2.1 (#12), G2.2 (#13), G2.3 (#14) CLOSED; G2.4 (#15) + G1.3
+- **G1.3 lever (issue #16) IMPLEMENTED + MEASURED + reviewer-approved**:
+  cross-turn KV prefix cache for retry phases — retry-phase prefill
+  63.7 s → 5.2 s (−91.8%; acceptance bar ≥ 50% MET; paired tasks −92.6%;
+  7/7 restore hits, 0 misses). Evidence:
+  `benchmarks/results/kv-cache-local-4b-20260824-083718.json` +
+  `docs/g1.3-kv-prefix-cache.md`.
+- **Honest G1.3 projection:** at 27B scale retry prefill is only 0.51% of
+  wall, so this lever moves 2.12× → ~2.11× and CANNOT close the <2× bar
+  alone — **G1.3 (#7) remains open**. Next levers: retry-storm reduction
+  and native-arch llama builds (documented hypotheses,
+  docs/parity-report-phase1.md Addendum 3).
+- Issues: G2.1 (#12), G2.2 (#13), G2.3 (#14), G2.4 (#15) CLOSED; G1.3
   (#7) + G1.5 (#9) open.
 
 ## Blockers

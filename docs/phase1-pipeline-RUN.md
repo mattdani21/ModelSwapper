@@ -54,6 +54,35 @@ Kaggle GPU quota: 30 h/week free; swarm cap 8 h/week (registry `gpu_usage`).
 - `capsules/*.json` — the audit trail (plan, attempts, critic feedback) for G2.3
 - The numbers are committed to the repo by the orchestrator after the run.
 
+## Run 4 — G1.3 native-arch (deciding instrument)
+
+- **Purpose:** decide G1.3 — mean wall-clock per task ≤ **38.6 s** (= 2× the
+  19.3 s API mean). The near-miss is on record on the full-50 8192-config
+  runs: **2.12×** (overlap, 40.83 s) and **2.18×** (sequential, 41.99 s)
+  against the 2× bar (`overlap-colab-27b-20260820-full50-8192.json`,
+  `sequential-colab-27b-20260820-full50-8192.json`, STATE.md §Phase 2). The
+  lever: **native CUDA kernels on Hopper/Blackwell** — the eval GPUs that
+  currently run the multi-arch (`75;80;89`) binary via **PTX JIT**
+  (sm_89 → sm_100); generation is the wall-clock-dominant term at 27B scale.
+- **What changed** (both `notebooks/colab-phase1-eval.ipynb` and
+  `notebooks/colab-phase2-eval.ipynb`): the llama.cpp cmake configure line
+  now sets `-DCMAKE_CUDA_ARCHITECTURES='75;80;89;90;100;120'` (Turing,
+  Ampere, Ada, Hopper, Blackwell), and `LLAMA_CACHE_VERSION` was bumped
+  **'v3' → 'v4'** in the same cell. The Drive cache is keyed on that value,
+  so v4 forces the rebuild with the new arch list — without the bump the old
+  PTX-JIT binary is reused and nothing changes.
+- **How to confirm native kernels at runtime:** llama-server's stderr prints
+  CUDA device info (device name / compute capability) at startup — with the
+  native build the device's own arch is selected and **no PTX-JIT fallback
+  warning** appears; the notebook also prints `nvidia-smi` output at the top,
+  so the GPU model is in the transcript for attribution.
+- **Expected outputs:** `/content/pipeline-results.json` (rewritten after
+  every task, so a timeout still yields completed tasks), the per-run wall
+  time, and the final **PASS RATE** line.
+- **Return contract:** the JSON is committed to `benchmarks/results/`
+  **byte-identical** to what the notebook produced — **sha256 both sides**
+  (downloaded copy vs committed copy must match before the number is used).
+
 ## Local gates (already green on the Mac)
 
 - `pytest pipeline/tests capsule/tests benchmarks/harness/tests` → 20 passed
