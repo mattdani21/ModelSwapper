@@ -206,3 +206,36 @@ was written.
    tok, replicated twice) — real and mechanism-backed; the sacred suite
    untouched since 2026-08-07 (verified in git); RED/GREEN reproduces
    (50/50, re-run during the audit).
+
+---
+
+## Addendum 5 — The symmetric baseline (roadmap Step 0, falsification experiment, 2026-08-25)
+
+The audit (Addendum 4) demanded the comparison the pipeline never got:
+the frontier API run through the IDENTICAL loop — REASON plan → CODE →
+sacred grader → CRITIC (test-output feedback, 600-char bound) → retry,
+up to 3 attempts, same prompts (pipeline/prompts.py verbatim), same
+temperature 0.2. Runner: `benchmarks/harness/run_symmetric_baseline.py`
+(new file; sacred files untouched). Cost: $0.45 for the suite.
+
+| Metric | Pipeline (27B+8B, 8192) | API with the SAME loop |
+|---|---|---|
+| pass@1 | 41/50 (82%) | 46/50 (92%) |
+| retry rescues | +6 | +2 |
+| **final** | **47/50 (94%)** | **48/50 (96%)** |
+| failed | refactor-01, refactor-11, refactor-12 | bugfix-08, feature-08 |
+
+**The falsification failed to falsify.** The frontier model with the same
+loop does NOT reach ~50/50 — it stays at 48/50, exactly its original
+single-shot score. Discordant pairs (McNemar): 2 pipeline-only passes
+(bugfix-08, feature-08) vs 3 API-only (refactor-01/11/12) → p ≈ 1.0.
+
+**Measured, defensible claim:** "statistically indistinguishable from a
+frontier API on this suite under an identical loop protocol (47 vs 48),
+at zero marginal cost and zero data egress."
+
+**Secondary finding (mechanism):** the retry loop is worth MORE to the
+small-model pipeline (+6, 41→47) than to the frontier API (+2, 46→48).
+The frontier is already near its ceiling at pass@1; smaller specialists
+have headroom that feedback loops capture. This is the honest version of
+the retracted Phase-1 claim — now measured on both sides.
