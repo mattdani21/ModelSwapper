@@ -36,9 +36,12 @@ vs. a REASON → CODE → REVIEW swap-pipeline of ≤ 27B-class specialists.**
   STATE.md, docs/parity-report-phase1.md addendum 4 item 1]. That is
   **97.9% of the frontier baseline's rate** (47/48) [computed from the two
   files above; ratio stated in STATE.md]. The baseline is single-shot
-  (48/50), so the honest pass@1 comparison is **41/50 single-shot vs 48/50
-  single-shot (McNemar p ≈ 1.0 — statistically indistinguishable on this
-  suite)** [docs/parity-report-phase1.md addendum 4 item 3].
+  (48/50), so the honest pass@1 comparison is pipeline pass@1 **41/50 vs
+  48/50 single-shot — exact McNemar p = 0.016 (b=7 c=0), a significant
+  gap at n=50, not inside noise** [docs/parity-report-phase1.md addendum
+  4 item 3, corrected per docs/symmetric-baseline.md]. The loop-equipped
+  comparison (47/50 vs 48/50) remains statistically indistinguishable
+  (p = 1.0).
 - Overlap engine, same config: **45/50 = 90.0%**
   [`benchmarks/results/overlap-colab-27b-20260820-full50-8192.json`].
 - The Phase-1 bar (G1.2) was **≥ 76.8%** (= 80% of the 96.0% baseline) and is

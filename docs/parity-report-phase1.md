@@ -191,9 +191,13 @@ was written.
 3. **Protocol asymmetry:** pass@1 comparison is 41/50 (pipeline) vs
    48/50 (API baseline, single shot). The headline parity figure
    (47/50) includes retries the baseline was never given. Honest
-   phrasing going forward: "41/50 single-shot vs 48/50 single-shot
-   (McNemar p ≈ 1.0 — statistically indistinguishable on this suite);
-   47/50 with the retry loop."
+   phrasing going forward: "pipeline pass@1 41/50 vs 48/50 single-shot
+   — exact McNemar p = 0.016 (b=7 c=0), a significant gap at n=50, not
+   inside noise; 47/50 with the retry loop vs 48/50 remains
+   statistically indistinguishable (p = 1.0)." [p-values recomputed
+   from `benchmarks/results/symmetric-baseline-20260825.json`,
+   `benchmarks/results/baseline-deepseek-v4-pro-20260807-001937.json`,
+   `benchmarks/results/sequential-colab-27b-20260820-full50-8192.json`]
 4. **Cost:** the only measured cost comparison in the repo: API
    $0.15/suite vs pipeline ≈ $0.70/suite on rented L4 ≈ **4.7× the API**.
    The "1/50th cost" north-star claim is NOT supported by any committed
