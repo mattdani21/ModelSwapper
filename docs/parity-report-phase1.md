@@ -227,12 +227,12 @@ temperature 0.2. Runner: `benchmarks/harness/run_symmetric_baseline.py`
 | pass@1 | 41/50 (82%) | 46/50 (92%) |
 | retry rescues | +6 | +2 |
 | **final** | **47/50 (94%)** | **48/50 (96%)** |
-| failed | refactor-01, refactor-11, refactor-12 | bugfix-08, feature-08 |
+| failed | refactor-01, refactor-02, refactor-12 | bugfix-08, feature-08 |
 
 **The falsification failed to falsify.** The frontier model with the same
 loop does NOT reach ~50/50 — it stays at 48/50, exactly its original
 single-shot score. Discordant pairs (McNemar): 2 pipeline-only passes
-(bugfix-08, feature-08) vs 3 API-only (refactor-01/11/12) → p ≈ 1.0.
+(bugfix-08, feature-08) vs 3 API-only (refactor-01/02/12) → p ≈ 1.0.
 
 **Measured, defensible claim:** "statistically indistinguishable from a
 frontier API on this suite under an identical loop protocol (47 vs 48),

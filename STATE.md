@@ -107,6 +107,14 @@ Findings: (1) eviction is nearly free — swap cost is dominated by weight loadi
 
 - None. (T0/T1 hardware numbers are scheduling items, not blockers — mechanics are measured on T4 hardware now.)
 
+## 2026-08-28 landing (wt/land-2026-08-28 → main)
+
+- **Roadmap Step 0 landed** (reviewer-approved, t_d24fd5e4): `benchmarks/run_symmetric_baseline.py` + evidence `benchmarks/results/symmetric-baseline-20260825.json` + `docs/symmetric-baseline.md` — falsification verdict: API-with-identical-loop 48/50 ≠ ~50/50; parity claim survives (47 vs 48, p≈1.0). pass@1 p-value amendment (t_fd73b8df) landed too (four-number-proof §2.1 + parity-report Addendum 4 item 3: exact McNemar p=0.016).
+- **Roadmap gate 4 landed** (review t_23f2732a fix applied in this landing): `docs/methodology-standard.md` + `site/` benchmark page (deterministic build, zero external assets, both Step-0 runs reconciled "$0.25–$0.45 per suite"; build asserts pipeline failed-task ids against the parsed JSON). Required fix: pipeline third failure corrected to refactor-02 (was refactor-11) in PIPELINE_DOC.failed / LOOP_MCNEMAR.api_only_tasks / Addendum 5 cell.
+- **Engine 1 templates landed** (reviewer-approved, t_2e6095e4): `templates/validation-program/` (one-pager + validation report + README; roadmap price bands only; EXAMPLE blocks with measured numbers).
+- Gates re-run after merge: 37 passed, 50 tasks OK, sacred diff 0 lines, build byte-identical across runs, serve 200.
+- G1.5 (T0 24 GB Air) remains an open item on the page (honest, no placeholders).
+
 ## Test command
 
 ```bash

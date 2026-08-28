@@ -71,7 +71,7 @@ PIPELINE_DOC = {
     "final": "47/50 (94%)",
     "pass_at_1": "41/50 (82%)",
     "retry_rescues": "+6",
-    "failed": "refactor-01, refactor-11, refactor-12",
+    "failed": "refactor-01, refactor-02, refactor-12",
     "final_note": "6 of the 47 passes came via the retry loop, so pass@1 is 41/50",
     "source": {
         "Addendum 5 table (all doc-sourced cells)": PARITY_REPORT,
@@ -81,13 +81,13 @@ PIPELINE_DOC = {
 
 # Loop-equipped comparison (Addendum 5, commit 8c7a7a3): discordant pairs
 # 2 vs 3 (pipeline-only wins bugfix-08 + feature-08; API-only wins
-# refactor-01/11/12) -> exact McNemar p ~= 1.0.
+# refactor-01/02/12) -> exact McNemar p ~= 1.0.
 LOOP_MCNEMAR = {
     "pipeline_only": 2,
     "api_only": 3,
     "p": "p ≈ 1.0",
     "pipeline_only_tasks": "bugfix-08, feature-08",
-    "api_only_tasks": "refactor-01, refactor-11, refactor-12",
+    "api_only_tasks": "refactor-01, refactor-02, refactor-12",
     "quote": (
         "statistically indistinguishable from a frontier API on this suite "
         "under an identical loop protocol (47 vs 48), at zero marginal cost "
@@ -182,6 +182,13 @@ def main() -> None:
     assert failed_canonical == ["bugfix-08", "feature-08"], failed_canonical
     assert failed_earlier == ["feature-08", "refactor-12"], failed_earlier
     assert failed_baseline == ["feature-08", "refactor-12"], failed_baseline
+    # pipeline row is doc-sourced; pin it to the parsed JSON so the doc
+    # cannot drift from the evidence (review t_23f2732a)
+    failed_pipeline = [r["task_id"] for r in pipeline_json["results"] if not r["passed"]]
+    assert ", ".join(failed_pipeline) == PIPELINE_DOC["failed"], (
+        f"pipeline JSON failed tasks ({', '.join(failed_pipeline)}) drift from "
+        f"PIPELINE_DOC['failed'] ({PIPELINE_DOC['failed']})"
+    )
 
     c = canonical
     x = earlier

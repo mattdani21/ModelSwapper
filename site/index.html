@@ -65,7 +65,7 @@ code{background:var(--panel2);border:1px solid var(--line);border-radius:4px;pad
     <tr><td class="metric">Final pass rate</td><td class="ok">47/50 (94%)</td><td class="ok">48/50 (96%)</td><td class="ok">48/50 (96%)</td></tr>
     <tr><td class="metric">pass@1</td><td>41/50 (82%)</td><td>46/50 (92%)</td><td>48/50 (96%) <span class="note">(single-shot by construction)</span></td></tr>
     <tr><td class="metric">Retry rescues</td><td class="ok">+6</td><td>+2</td><td>— <span class="note">(no loop)</span></td></tr>
-    <tr><td class="metric">Failed tasks</td><td>refactor-01, refactor-11, refactor-12</td><td class="bad">bugfix-08, feature-08</td><td class="bad">feature-08, refactor-12</td></tr>
+    <tr><td class="metric">Failed tasks</td><td>refactor-01, refactor-02, refactor-12</td><td class="bad">bugfix-08, feature-08</td><td class="bad">feature-08, refactor-12</td></tr>
     <tr><td class="metric">Suite wall clock</td><td>2099.5 s</td><td>3236.0 s</td><td>1058.0 s</td></tr>
     <tr><td class="metric">Mean phase latency</td><td>—</td><td>28.24 s</td><td>—</td></tr>
     <tr><td class="metric">Tokens in / out</td><td>—</td><td>70,180 / 209,424</td><td>22,410 / 67,567</td></tr>
@@ -98,7 +98,7 @@ code{background:var(--panel2);border:1px solid var(--line);border-radius:4px;pad
 
   <h3>3.1 Loop-equipped comparison: statistically indistinguishable</h3>
   <p>Discordant pairs 2 vs 3 (pipeline-only wins:
-  bugfix-08, feature-08; API-only wins: refactor-01, refactor-11, refactor-12) — exact McNemar
+  bugfix-08, feature-08; API-only wins: refactor-01, refactor-02, refactor-12) — exact McNemar
   <strong class="ok">p ≈ 1.0</strong>. The measured, defensible claim:</p>
   <div class="quote">"statistically indistinguishable from a frontier API on this suite under an identical loop protocol (47 vs 48), at zero marginal cost and zero data egress."</div>
   <p class="note">Source: <code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5.</p>
@@ -143,7 +143,7 @@ code{background:var(--panel2);border:1px solid var(--line);border-radius:4px;pad
     <tr><th>Figure</th><th>Source (file @ commit)</th></tr>
     <tr><td>Canonical symmetric run: 48/50, pass@1 46, cost $0.4539, wall 3236.0 s, mean phase latency 28.24 s, tokens 70,180 / 209,424, per-category bugfix 16/17 · feature 16/17 · refactor 16/16, failed bugfix-08, feature-08</td><td><code>benchmarks/results/symmetric-baseline-deepseek-v4-pro-20260825-195414.json</code> <span class="mut">@</span> <code>8c7a7a3</code> · runner <code>benchmarks/harness/run_symmetric_baseline.py</code> <span class="mut">@</span> <code>6b610d0</code></td></tr>
     <tr><td>Earlier reproduction: 48/50, pass@1 46, cost $0.2461, wall 1977.8 s, tokens 35,119 / 114,293, failed feature-08, refactor-12 (byte-identical copy of the original evidence file)</td><td><code>benchmarks/results/symmetric-baseline-20260825.json</code> <span class="mut">@</span> <code>cd8b703</code></td></tr>
-    <tr><td>Pipeline row: 47/50 (94%), pass@1 41/50 (82%), retry rescues +6, failed refactor-01, refactor-11, refactor-12 — doc-sourced cells</td><td><code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5 · <code>benchmarks/results/sequential-colab-27b-20260820-full50-8192.json</code> <span class="mut">@</span> <code>5d3fd0f</code> (parsed 47/50)</td></tr>
+    <tr><td>Pipeline row: 47/50 (94%), pass@1 41/50 (82%), retry rescues +6, failed refactor-01, refactor-02, refactor-12 — doc-sourced cells</td><td><code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5 · <code>benchmarks/results/sequential-colab-27b-20260820-full50-8192.json</code> <span class="mut">@</span> <code>5d3fd0f</code> (parsed 47/50)</td></tr>
     <tr><td>Loop-equipped McNemar p ≈ 1.0 (discordant 2 vs 3) and the 3.1 quote</td><td><code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5</td></tr>
     <tr><td>pass@1 McNemar p = 0.016 (b=7, c=0)</td><td><code>docs/four-number-proof.md</code> <span class="mut">@</span> <code>694eff7</code> §2.1 · <code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 4 item 3 (amendment 694eff7, branch wt/amended-pass1)</td></tr>
     <tr><td>API single-shot 48/50, cost $0.1463, failed feature-08, refactor-12</td><td><code>benchmarks/results/baseline-deepseek-v4-pro-20260807-001937.json</code> <span class="mut">@</span> <code>e9fb21e</code></td></tr>
