@@ -1,24 +1,61 @@
-# PR — benchmark page + validation methodology standard (roadmap gate 4, G4.4)
+# PR_SUMMARY — 2026-08-28 landing: Step-0 symmetric baseline + p-value amendment + benchmark page (gate 4) + validation-program templates (Engine 1)
 
-Branch: `wt/benchmark-page` · base `3bea626` · goal ref: **G4.4** (roadmap-to-revenue.md gate 4: "Benchmark page + methodology writeup").
+Branch: `wt/land-2026-08-28` (merged onto main as commit) · goal refs: **Step 0 / Gate 4 / Engine 1** (docs/roadmap-to-revenue.md, audited 2026-08-21)
 
 ## What
 
-- **`docs/methodology-standard.md`** (new) — the reusable validation methodology for the open funnel: suite definition (`swapos-v1`, 50 tasks = 17 bugfix / 17 feature / 16 refactor, single-file Python, interview-canon), the sacred grader (`benchmarks/harness/grader.py` — sole pass/fail authority, never modified to make results pass; any change to suite or grader invalidates the comparison), the symmetric protocol (REASON → CODE → sacred grader → CRITIC, 600-char bounded feedback, max 3 attempts, temp 0.2, prompts verbatim from `pipeline/prompts.py`, one runner for both sides: `benchmarks/harness/run_symmetric_baseline.py`), cost accounting (measured `tokens_in`/`tokens_out`, cost estimate with explicit `price_notes` in the results JSON; pipeline runs locally with zero marginal API cost and zero data egress), and stated suite limits (single-file Python only, one baseline vendor deepseek-v4-pro, n=50).
-- **`site/`** (new) — deterministic static benchmark page. `site/build_site.py` reads the evidence JSONs under `benchmarks/results/` and emits `site/index.html` (pure HTML/CSS/JS, zero external assets, dark dev-tool aesthetic). Every number is either parsed from a committed results JSON or (pipeline row, doc-sourced) pinned constants with source doc + commit cited on the page; the build asserts invariants against the evidence and fails on drift. Page includes the headline figure area ("48/50 on two independent runs, $0.25–$0.45 per suite"), a comparison table (pipeline vs API-with-identical-loop vs API single-shot), both Step-0 runs, the McNemar statistics (loop-equipped p ≈ 1.0; honest pass@1 p = 0.016, b=7 c=0, per amendment 694eff7), a source-citation footnote table (every figure → file + commit), and an honest-limitations section (hardware floor explicitly an open item — no placeholder numbers).
-- **`benchmarks/results/symmetric-baseline-20260825.json`** (added) — the ONLY change under `benchmarks/`: a byte-identical copy of the earlier Step-0 reproduction (48/50, pass@1 46, $0.2461). No changes to `benchmarks/tasks/**` or `benchmarks/harness/**` (sacred, untouched).
+Four reviewer-approved strands merged onto main in one landing, plus the one
+review-required page fix:
+
+1. **Step 0 symmetric baseline (review t_d24fd5e4 APPROVED)** — the falsification
+   experiment: `benchmarks/run_symmetric_baseline.py` (deepseek-v4-pro with the
+   pipeline's identical REASON → CODE → grader → CRITIC → retry loop),
+   evidence `benchmarks/results/symmetric-baseline-20260825.json`
+   (48/50, pass@1 46, $0.2461), narrative `docs/symmetric-baseline.md`.
+   Verdict: falsification did NOT produce ~50/50; parity claim survives
+   (47 vs 48, McNemar p≈1.0).
+2. **pass@1 p-value amendment (t_fd73b8df)** — `docs/four-number-proof.md` §2.1
+   and `docs/parity-report-phase1.md` Addendum 4 item 3 corrected to exact
+   McNemar p = 0.016 (b=7 c=0) for the pass@1-only comparison (was p≈1.0).
+3. **Benchmark page + methodology standard (gate 4, review t_23f2732a — 1
+   required fix applied, see below)** — `docs/methodology-standard.md`
+   (open-funnel validation methodology), `site/build_site.py` + `site/index.html`
+   (deterministic static parity-evidence page, zero external assets),
+   canonical run evidence `benchmarks/results/symmetric-baseline-deepseek-v4-pro-20260825-195414.json`
+   (48/50, pass@1 46, $0.4539), and the reconciliation note ($0.25–$0.45 per suite).
+4. **Validation-program templates (review t_2e6095e4 APPROVED)** — Engine 1
+   deliverables `templates/validation-program/{one-pager,validation-report,README}.md`
+   (partner-led validation program shape, roadmap-approved price bands only,
+   EXAMPLE blocks with measured numbers).
+
+**Required review fix applied in this landing (t_23f2732a):** `site/build_site.py`
+PIPELINE_DOC.failed and LOOP_MCNEMAR.api_only_tasks now list `refactor-02`
+(pipeline's real third failure, per committed JSON) instead of `refactor-11`
+(passed 7/7, iteration 1). Recommended fixes also applied: build now asserts
+pipeline failed-task ids against the parsed JSON, and `docs/parity-report-phase1.md`
+Addendum 5 pipeline-failed cell aligned to `refactor-02`.
 
 ## Why
 
-Roadmap gate 4 (`docs/roadmap-to-revenue.md`, "Gates"): the benchmark page + methodology writeup is the only Phase-4 piece the validation-services engine needs, and the open-funnel distribution ("methodology + suite + honest numbers published as a standard"). The page publishes the Step-0 falsification verdict — including the negative results (pass@1 gap, hardware floor unmeasured) — as the marketing, per the roadmap.
+The 08-27 operating cycle was blocked by a DeepSeek billing 402 before creating
+anything — three reviewer-approved strands had been sitting off-main for 1–3
+cycles. This landing closes that stranding and delivers the roadmap's
+publication-critical pieces (Step-0 verdict, page, methodology) plus the
+Engine-1 sales templates onto main.
 
 ## How tested (gate steps, real output)
 
-1. **Quality gate:** `uv run --with pytest pytest capsule/tests benchmarks/harness/tests pipeline/tests` → **37 passed in 1.78s** (capsule 17, compress 8, grader 5, loop 15; exit 0).
-2. **Build:** `python3 site/build_site.py` → `wrote site/index.html` (161 lines), run twice and diffed → **byte-identical (deterministic)**; evidence-drift assertions all pass.
-3. **Serve check:** `cd site && python3 -m http.server 8000` (background) → `curl -s http://localhost:8000/ | grep -o "48/50" | head -1` → **`48/50`**; server killed after check.
-4. **Content audit:** all required figures verified present verbatim (48/50 ×2 runs, pass@1 46/50 ×2, $0.4539 / $0.2461, 3236.0 s / 1977.8 s, 28.24 s, tokens 70,180/209,424 and 35,119/114,293, p ≈ 1.0, p = 0.016 (b=7 c=0), headline + quote); no external assets, no placeholders, no cost-ratio claims.
+1. **Quality gate:** `uv run --with pytest pytest capsule/tests benchmarks/harness/tests pipeline/tests` → **37 passed** (rerun independently by wrapper after the fix).
+2. **Sacred rule:** `git diff main..HEAD -- benchmarks/tasks benchmarks/harness` = **0 lines** (only NEW files added under benchmarks/: the runner + two result JSONs).
+3. **Build determinism:** `python3 site/build_site.py` run twice → **byte-identical index.html**; page asserts invariants against committed JSONs (incl. the new failed-task invariant).
+4. **Serve check:** `python3 -m http.server -d site` + curl → headline "48/50 on two independent runs, $0.25–$0.45 per suite" renders.
+5. **Merge hygiene:** both lineage-A (approved base b762749) and lineage-B (page/templates base 3bea626) strands merged; only conflict was PR_SUMMARY.md (add/add) — resolved as this combined summary; parity-report Addendum 4 amendment + Addendum 5 both present; roadmap Step 0 DONE recorded; g2.4/notebooks intact.
 
 ## Reconciliation note
 
-Both Step-0 runs are shown: canonical `symmetric-baseline-deepseek-v4-pro-20260825-195414.json` (commit 8c7a7a3, run 2026-08-25T18:48:10Z, 48/50, pass@1 46, $0.4539) and the earlier reproduction `symmetric-baseline-20260825.json` (commit cd8b703, run 2026-08-25T05:35:48Z, 48/50, pass@1 46, $0.2461). Both agree on 48/50 and pass@1 46; the $0.45 vs $0.25 difference is timing/pricing, presented honestly as the **$0.25–$0.45 per suite** range (headline wording). The pass@1 comparison (pipeline 41/50 vs API single-shot 48/50, p = 0.016) is stated honestly per reviewer-approved amendment 694eff7; p ≈ 1.0 is attached only to the loop-equipped comparison, never to pass@1. No "1/50th cost" or any other cost-ratio claim appears anywhere (retracted red line); sovereignty/zero-egress framing only.
+Two Step-0 runs are published on the page, both 48/50: canonical
+`symmetric-baseline-deepseek-v4-pro-20260825-195414.json` ($0.4539) and
+reproduction `symmetric-baseline-20260825.json` ($0.2461) — headline "$0.25–$0.45
+per suite". No "1/50th cost" or any cost-ratio claim anywhere (retracted red
+line); hardware floor (G1.5) stated as open item, no placeholders; zero external
+assets.
