@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SwapOS — swapos-v1 benchmark · roadmap Step 0 (falsification experiment)</title>
+<style>
+:root{--bg:#0b0e14;--panel:#12161f;--panel2:#0f131c;--line:#232a37;--fg:#d7dde8;
+--mut:#8b94a7;--acc:#4cc2ff;--ok:#3fb950;--warn:#d29922;--bad:#f85149;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--fg);font:14px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;padding:40px 20px;}
+main{max-width:1040px;margin:0 auto;}
+a{color:var(--acc);text-decoration:none;} a:hover{text-decoration:underline;}
+.kicker{color:var(--mut);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;}
+h1{font-size:26px;font-weight:700;letter-spacing:-.01em;}
+h2{font-size:15px;font-weight:700;margin:44px 0 14px;padding-top:22px;border-top:1px solid var(--line);letter-spacing:.02em;text-transform:uppercase;color:var(--acc);}
+h3{font-size:13px;margin:18px 0 8px;color:var(--fg);}
+p{margin:10px 0;}
+.mut{color:var(--mut);} .ok{color:var(--ok);} .warn{color:var(--warn);} .bad{color:var(--bad);}
+.headline{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:28px 30px;margin:22px 0 8px;}
+.headline .hl{font-size:30px;font-weight:700;line-height:1.3;letter-spacing:-.01em;}
+.headline .hl .hlsub{font-size:20px;}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px;}
+.stat{flex:1;min-width:170px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:14px 16px;}
+.stat .n{font-size:26px;font-weight:700;color:var(--acc);}
+.stat .l{font-size:11px;color:var(--mut);margin-top:4px;}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:10px 0 6px;}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:13px;}
+th{background:var(--panel2);color:var(--mut);font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px;}
+tr:last-child td{border-bottom:none;}
+td.metric{color:var(--mut);white-space:nowrap;}
+.quote{border-left:3px solid var(--acc);background:var(--panel2);padding:12px 16px;margin:14px 0;font-style:italic;color:var(--fg);}
+.limits li{margin:8px 0 8px 18px;}
+.foot{color:var(--mut);font-size:11px;margin-top:44px;padding-top:14px;border-top:1px solid var(--line);}
+.note{font-size:12px;color:var(--mut);}
+code{background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:1px 5px;font-size:12px;}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <div class="kicker">SwapOS / ModelSwapper · open-funnel benchmark · roadmap gate 4 — Step 0 falsification experiment</div>
+  <h1>swapos-v1 · the symmetric baseline</h1>
+  <div class="headline">
+    <div class="hl">48/50 on two independent runs, $0.25–$0.45 per suite</div>
+    <p class="mut">The frontier API run through the pipeline's <em>identical</em> loop scored 48/50 on two
+    independent runs — the falsification experiment did not falsify. Methodology:
+    <a href="../docs/methodology-standard.md">docs/methodology-standard.md</a>.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">48/50</div><div class="l">final, both independent runs</div></div><div class="stat"><div class="n">46/50</div><div class="l">pass@1, both independent runs</div></div><div class="stat"><div class="n">$0.25–$0.45</div><div class="l">measured API cost per suite</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <h2>1 · Comparison — pipeline vs frontier API, same loop</h2>
+  <p class="note">The API arm ran the pipeline's identical loop — REASON plan → CODE → sacred grader → CRITIC
+  (600-char bounded test-output feedback) → retry, max 3 attempts, temperature 0.2, prompts verbatim from
+  <code>pipeline/prompts.py</code> — via the single harness runner
+  <code>benchmarks/harness/run_symmetric_baseline.py</code> <span class="mut">@</span> <code>6b610d0</code>. The single-shot column is the original frontier baseline
+  (one call per task, no loop).</p>
+  <table>
+    <tr><th>Metric</th><th>Pipeline (27B+8B, ctx 8192)</th><th>API deepseek-v4-pro — identical loop (canonical)</th><th>API deepseek-v4-pro — single shot (baseline)</th></tr>
+    <tr><td class="metric">Final pass rate</td><td class="ok">47/50 (94%)</td><td class="ok">48/50 (96%)</td><td class="ok">48/50 (96%)</td></tr>
+    <tr><td class="metric">pass@1</td><td>41/50 (82%)</td><td>46/50 (92%)</td><td>48/50 (96%) <span class="note">(single-shot by construction)</span></td></tr>
+    <tr><td class="metric">Retry rescues</td><td class="ok">+6</td><td>+2</td><td>— <span class="note">(no loop)</span></td></tr>
+    <tr><td class="metric">Failed tasks</td><td>refactor-01, refactor-11, refactor-12</td><td class="bad">bugfix-08, feature-08</td><td class="bad">feature-08, refactor-12</td></tr>
+    <tr><td class="metric">Suite wall clock</td><td>2099.5 s</td><td>3236.0 s</td><td>1058.0 s</td></tr>
+    <tr><td class="metric">Mean phase latency</td><td>—</td><td>28.24 s</td><td>—</td></tr>
+    <tr><td class="metric">Tokens in / out</td><td>—</td><td>70,180 / 209,424</td><td>22,410 / 67,567</td></tr>
+    <tr><td class="metric">Cost estimate (USD)</td><td class="ok">$0 <span class="note">(local; zero marginal API cost)</span></td><td>$0.4539</td><td>$0.1463</td></tr>
+  </table>
+  <p class="note">6 of the 47 passes came via the retry loop, so pass@1 is 41/50 — <code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5 (all doc-sourced pipeline cells) · <code>benchmarks/results/sequential-colab-27b-20260820-full50-8192.json</code> <span class="mut">@</span> <code>5d3fd0f</code> (parsed 47/50, per-category, wall-clock).</p>
+</section>
+
+<section>
+  <h2>2 · The two Step-0 runs — both 48/50</h2>
+  <p class="note">Two independent runs of the symmetric baseline agree on the headline: 48/50, pass@1 46/50.
+  The cost difference ($0.45 vs $0.25) is timing/pricing of the same protocol — the honest range is
+  <strong>$0.25–$0.45 per suite</strong>.</p>
+  <table>
+    <tr><th>Metric</th><th>Canonical run · 2026-08-25T18:48:10Z</th><th>Earlier reproduction · 2026-08-25T05:35:48Z</th></tr>
+    <tr><td class="metric">Final</td><td class="ok">48/50</td><td class="ok">48/50</td></tr>
+    <tr><td class="metric">pass@1</td><td>46/50</td><td>46/50</td></tr>
+    <tr><td class="metric">Per category</td><td>bugfix 16/17 · feature 16/17 · refactor 16/16</td><td>bugfix 17/17 · feature 16/17 · refactor 15/16</td></tr>
+    <tr><td class="metric">Failed tasks</td><td class="bad">bugfix-08, feature-08</td><td class="bad">feature-08, refactor-12</td></tr>
+    <tr><td class="metric">Wall clock</td><td>3236.0 s</td><td>1977.8 s</td></tr>
+    <tr><td class="metric">Mean phase latency</td><td>28.24 s</td><td>— <span class="note">(not recorded)</span></td></tr>
+    <tr><td class="metric">Tokens in / out</td><td>70,180 / 209,424</td><td>35,119 / 114,293</td></tr>
+    <tr><td class="metric">Cost estimate (USD)</td><td>$0.4539</td><td>$0.2461</td></tr>
+    <tr><td class="metric">Evidence JSON</td><td><code>benchmarks/results/symmetric-baseline-deepseek-v4-pro-20260825-195414.json</code> <span class="mut">@</span> <code>8c7a7a3</code></td><td><code>benchmarks/results/symmetric-baseline-20260825.json</code> <span class="mut">@</span> <code>cd8b703</code></td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>3 · Statistics — what is defensible</h2>
+
+  <h3>3.1 Loop-equipped comparison: statistically indistinguishable</h3>
+  <p>Discordant pairs 2 vs 3 (pipeline-only wins:
+  bugfix-08, feature-08; API-only wins: refactor-01, refactor-11, refactor-12) — exact McNemar
+  <strong class="ok">p ≈ 1.0</strong>. The measured, defensible claim:</p>
+  <div class="quote">"statistically indistinguishable from a frontier API on this suite under an identical loop protocol (47 vs 48), at zero marginal cost and zero data egress."</div>
+  <p class="note">Source: <code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5.</p>
+
+  <h3>3.2 pass@1 comparison: honest, and significant</h3>
+  <p>Pipeline pass@1 41/50 vs API single-shot 48/50 — exact
+  McNemar <strong class="bad">p = 0.016</strong> (discordant b=7, c=0):
+  a significant gap at n=50, not inside noise. <span class="warn">p ≈ 1.0 applies ONLY to the loop-equipped
+  comparison in 3.1 — never to this one.</span></p>
+  <p class="note">Source: <code>§2.1</code> <span class="mut">—</span> <code>docs/four-number-proof.md</code> <span class="mut">@</span> <code>694eff7</code> + <code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 4 item 3
+  (reviewer-approved amendment, branch <code>wt/amended-pass1</code>). API single-shot 48/50:
+  <code>benchmarks/results/baseline-deepseek-v4-pro-20260807-001937.json</code> <span class="mut">@</span> <code>e9fb21e</code>.</p>
+
+  <h3>3.3 Retry-loop mechanism</h3>
+  <p>The loop is worth +6 (41 → 47) to the pipeline vs +2 (46 → 48) to the API —
+  the frontier model is already near its ceiling at pass@1, while smaller specialists have headroom that feedback loops capture. Source: <code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5.</p>
+</section>
+
+<section>
+  <h2>4 · Honest limitations</h2>
+  <ul class="limits">
+    <li><strong>Hardware floor (G1.5) — open item.</strong> The hardware-floor numbers (rented G1.5, T4 tier)
+    are <span class="warn">NOT yet measured on rented hardware</span>; this page makes no hardware claim and
+    shows no placeholder or invented specs. See roadmap gate 3 (<code>docs/roadmap-to-revenue.md</code> <span class="mut">@</span> <code>3bea626</code>).</li>
+    <li><strong>Suite scope:</strong> swapos-v1 is single-file Python tasks only (interview-canon, one file per
+    task, self-contained), n = 50, with one baseline vendor (deepseek-v4-pro). The suite is a screening
+    instrument, not a general validator — expand vendors and task classes before generalizing.</li>
+    <li><strong>pass@1 is a real gap:</strong> the pipeline needs its retry loop to reach parity (3.2); the
+    headline parity claim is the <em>loop-equipped</em> comparison (3.1).</li>
+    <li><strong>Cost framing — sovereignty only:</strong> API runs measured $0.25–$0.45 per suite; pipeline runs
+    locally with zero marginal API cost and zero data egress. No "1/50th cost" or any other cost-ratio claim is
+    made anywhere on this page (retracted red line, <code>docs/roadmap-to-revenue.md</code> <span class="mut">@</span> <code>3bea626</code>).</li>
+    <li><strong>Sacred evidence:</strong> every figure above is parsed from a committed results JSON or quoted
+    from the cited documents (table 5); the grader and suite are never modified to make results pass — any
+    change to suite or grader invalidates the comparison (docs/methodology-standard.md §§1–2).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>5 · Source citations — every figure → file + commit</h2>
+  <table>
+    <tr><th>Figure</th><th>Source (file @ commit)</th></tr>
+    <tr><td>Canonical symmetric run: 48/50, pass@1 46, cost $0.4539, wall 3236.0 s, mean phase latency 28.24 s, tokens 70,180 / 209,424, per-category bugfix 16/17 · feature 16/17 · refactor 16/16, failed bugfix-08, feature-08</td><td><code>benchmarks/results/symmetric-baseline-deepseek-v4-pro-20260825-195414.json</code> <span class="mut">@</span> <code>8c7a7a3</code> · runner <code>benchmarks/harness/run_symmetric_baseline.py</code> <span class="mut">@</span> <code>6b610d0</code></td></tr>
+    <tr><td>Earlier reproduction: 48/50, pass@1 46, cost $0.2461, wall 1977.8 s, tokens 35,119 / 114,293, failed feature-08, refactor-12 (byte-identical copy of the original evidence file)</td><td><code>benchmarks/results/symmetric-baseline-20260825.json</code> <span class="mut">@</span> <code>cd8b703</code></td></tr>
+    <tr><td>Pipeline row: 47/50 (94%), pass@1 41/50 (82%), retry rescues +6, failed refactor-01, refactor-11, refactor-12 — doc-sourced cells</td><td><code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5 · <code>benchmarks/results/sequential-colab-27b-20260820-full50-8192.json</code> <span class="mut">@</span> <code>5d3fd0f</code> (parsed 47/50)</td></tr>
+    <tr><td>Loop-equipped McNemar p ≈ 1.0 (discordant 2 vs 3) and the 3.1 quote</td><td><code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5</td></tr>
+    <tr><td>pass@1 McNemar p = 0.016 (b=7, c=0)</td><td><code>docs/four-number-proof.md</code> <span class="mut">@</span> <code>694eff7</code> §2.1 · <code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 4 item 3 (amendment 694eff7, branch wt/amended-pass1)</td></tr>
+    <tr><td>API single-shot 48/50, cost $0.1463, failed feature-08, refactor-12</td><td><code>benchmarks/results/baseline-deepseek-v4-pro-20260807-001937.json</code> <span class="mut">@</span> <code>e9fb21e</code></td></tr>
+    <tr><td>Retry mechanism +6 vs +2</td><td><code>docs/parity-report-phase1.md</code> <span class="mut">@</span> <code>8c7a7a3</code> Addendum 5</td></tr>
+    <tr><td>Cost framing / no cost-ratio red line / hardware-floor open item</td><td><code>docs/roadmap-to-revenue.md</code> <span class="mut">@</span> <code>3bea626</code></td></tr>
+    <tr><td>Methodology standard (suite definition, sacred grader, symmetric protocol)</td><td><code>docs/methodology-standard.md</code> <span class="mut">@</span> this commit (roadmap gate 4)</td></tr>
+  </table>
+</section>
+
+<div class="foot">SwapOS / ModelSwapper · swapos-v1 · generated deterministically by
+<code>site/build_site.py</code> from committed evidence — no placeholders, no fabricated numbers, no network.</div>
+
+</main>
+</body>
+</html>

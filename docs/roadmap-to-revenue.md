@@ -11,18 +11,21 @@ Honest premise: the runtime becomes sellable only after Phase 4 output
 service. Two engines, one runway. The binding constraint is DEMAND
 (zero recorded buyer conversations), not engineering.
 
-## Step 0 — the falsification experiment (this week, ~$1, no gates)
+## Step 0 — the falsification experiment — **DONE (2026-08-25, $0.45)**
 
-**Symmetric baseline:** give deepseek-v4-pro the identical loop the
-pipeline gets — grader feedback, critic, 3 attempts — over the same 50
-tasks. Today the comparison is asymmetric: pipeline 41/50 pass@1 (47/50
-with retries) vs API 48/50 single-shot, and the suite's reliability is
-documented (19/50 tasks flip across runs; stable core 58%). If the API
-with the same loop scores ~50/50, Engine 2 is shelved and Engine 1
-becomes the whole company. If the gap stays inside noise, the defensible
-claim is: "statistically indistinguishable from frontier on this suite
-(McNemar p≈1.0), at zero marginal cost and zero data egress." Publish
-the result either way — a self-falsification attempt is the marketing.
+Symmetric baseline executed: deepseek-v4-pro with the pipeline's exact
+loop (REASON → CODE → grader → CRITIC → retry, 3 attempts, same prompts,
+temp 0.2) scored **48/50 (pass@1 46/50, retries +2)** vs the pipeline
+**47/50 (pass@1 41/50, retries +6)**. The frontier model with the same
+loop did NOT reach ~50/50 — the thesis survived its hardest test.
+Discordant pairs 2 vs 3 (McNemar p≈1.0). The defensible claim is now
+MEASURED: "statistically indistinguishable from frontier on this suite
+under an identical loop protocol (47 vs 48), at zero marginal cost and
+zero data egress." Secondary finding: the retry loop is worth +6 to the
+small-model pipeline vs +2 to the API — smaller specialists have more
+headroom for feedback loops. Evidence: parity-report Addendum 5 +
+`symmetric-baseline-deepseek-v4-pro-20260825-195414.json`. Publish the
+method + numbers (including the negative results) as the marketing.
 
 ## Gate 0 — employment conflict, resolved in writing, BEFORE any buyer conversation
 

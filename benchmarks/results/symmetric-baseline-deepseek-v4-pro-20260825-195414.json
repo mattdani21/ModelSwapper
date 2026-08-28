@@ -1,0 +1,1277 @@
+{
+  "goal_refs": [
+    "roadmap Step 0 \u2014 symmetric baseline (falsification experiment)"
+  ],
+  "suite": "swapos-v1",
+  "model": "deepseek-v4-pro",
+  "api_base": "https://api.deepseek.com",
+  "run_at": "2026-08-25T18:48:10Z",
+  "wall_clock_s": 3236.0,
+  "tasks_total": 50,
+  "tasks_passed": 48,
+  "pass_rate": 0.96,
+  "pass_at_1": 46,
+  "per_category": {
+    "bugfix": {
+      "passed": 16,
+      "total": 17
+    },
+    "feature": {
+      "passed": 16,
+      "total": 17
+    },
+    "refactor": {
+      "passed": 16,
+      "total": 16
+    }
+  },
+  "mean_phase_latency_s": 28.24,
+  "tokens_in": 70180,
+  "tokens_out": 209424,
+  "cost_estimate_usd": 0.4539,
+  "price_notes": "same PRICE_IN/OUT_PER_M estimates as run_baseline.py; raw tokens recorded",
+  "config": {
+    "max_tokens": 8192,
+    "temperature": 0.2,
+    "max_iterations": 3,
+    "prompts": "pipeline/prompts.py builders verbatim (single user message, no system framing \u2014 matches the pipeline's raw completion prompts)",
+    "feedback_bound_chars": 600,
+    "grader": "sacred benchmarks/harness/grader.py"
+  },
+  "results": [
+    {
+      "task_id": "bugfix-01",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 384,
+          "tokens_out": 425,
+          "latency_s": 8.13
+        },
+        {
+          "role": "code",
+          "tokens_in": 449,
+          "tokens_out": 145,
+          "latency_s": 2.74
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-02",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 369,
+          "tokens_out": 222,
+          "latency_s": 4.44
+        },
+        {
+          "role": "code",
+          "tokens_in": 433,
+          "tokens_out": 117,
+          "latency_s": 2.65
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-03",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 363,
+          "tokens_out": 228,
+          "latency_s": 4.04
+        },
+        {
+          "role": "code",
+          "tokens_in": 441,
+          "tokens_out": 111,
+          "latency_s": 2.88
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-04",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 316,
+          "tokens_out": 241,
+          "latency_s": 3.76
+        },
+        {
+          "role": "code",
+          "tokens_in": 374,
+          "tokens_out": 77,
+          "latency_s": 2.02
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-05",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 298,
+          "tokens_out": 85,
+          "latency_s": 2.48
+        },
+        {
+          "role": "code",
+          "tokens_in": 334,
+          "tokens_out": 84,
+          "latency_s": 2.56
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-06",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 528,
+          "tokens_out": 403,
+          "latency_s": 7.26
+        },
+        {
+          "role": "code",
+          "tokens_in": 640,
+          "tokens_out": 300,
+          "latency_s": 4.26
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-07",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 451,
+          "tokens_out": 735,
+          "latency_s": 12.33
+        },
+        {
+          "role": "code",
+          "tokens_in": 533,
+          "tokens_out": 161,
+          "latency_s": 3.48
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-08",
+      "category": "bugfix",
+      "passed": false,
+      "iterations": 3,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 543,
+          "tokens_out": 8192,
+          "latency_s": 129.18
+        },
+        {
+          "role": "code",
+          "tokens_in": 550,
+          "tokens_out": 8192,
+          "latency_s": 135.98
+        },
+        {
+          "role": "critic",
+          "tokens_in": 718,
+          "tokens_out": 8192,
+          "latency_s": 134.92
+        },
+        {
+          "role": "code",
+          "tokens_in": 573,
+          "tokens_out": 8192,
+          "latency_s": 131.73
+        },
+        {
+          "role": "critic",
+          "tokens_in": 716,
+          "tokens_out": 8192,
+          "latency_s": 136.09
+        },
+        {
+          "role": "code",
+          "tokens_in": 573,
+          "tokens_out": 8192,
+          "latency_s": 132.07
+        }
+      ],
+      "error": "budget exhausted after 3 code attempts"
+    },
+    {
+      "task_id": "bugfix-09",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 503,
+          "tokens_out": 743,
+          "latency_s": 11.46
+        },
+        {
+          "role": "code",
+          "tokens_in": 659,
+          "tokens_out": 329,
+          "latency_s": 5.88
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-10",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 6,
+      "tests_total": 6,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 385,
+          "tokens_out": 241,
+          "latency_s": 4.9
+        },
+        {
+          "role": "code",
+          "tokens_in": 454,
+          "tokens_out": 92,
+          "latency_s": 2.39
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-11",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 412,
+          "tokens_out": 583,
+          "latency_s": 9.03
+        },
+        {
+          "role": "code",
+          "tokens_in": 533,
+          "tokens_out": 167,
+          "latency_s": 2.82
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-12",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 445,
+          "tokens_out": 315,
+          "latency_s": 6.15
+        },
+        {
+          "role": "code",
+          "tokens_in": 580,
+          "tokens_out": 149,
+          "latency_s": 2.68
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-13",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 479,
+          "tokens_out": 4323,
+          "latency_s": 70.84
+        },
+        {
+          "role": "code",
+          "tokens_in": 587,
+          "tokens_out": 966,
+          "latency_s": 16.07
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-14",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 404,
+          "tokens_out": 353,
+          "latency_s": 6.07
+        },
+        {
+          "role": "code",
+          "tokens_in": 502,
+          "tokens_out": 339,
+          "latency_s": 5.72
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-15",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 395,
+          "tokens_out": 791,
+          "latency_s": 11.68
+        },
+        {
+          "role": "code",
+          "tokens_in": 496,
+          "tokens_out": 164,
+          "latency_s": 3.44
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-16",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 537,
+          "tokens_out": 1489,
+          "latency_s": 24.47
+        },
+        {
+          "role": "code",
+          "tokens_in": 727,
+          "tokens_out": 360,
+          "latency_s": 5.75
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "bugfix-17",
+      "category": "bugfix",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 533,
+          "tokens_out": 1831,
+          "latency_s": 24.75
+        },
+        {
+          "role": "code",
+          "tokens_in": 679,
+          "tokens_out": 1074,
+          "latency_s": 14.55
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-01",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 467,
+          "tokens_out": 168,
+          "latency_s": 3.66
+        },
+        {
+          "role": "code",
+          "tokens_in": 554,
+          "tokens_out": 131,
+          "latency_s": 2.6
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-02",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 440,
+          "tokens_out": 454,
+          "latency_s": 7.61
+        },
+        {
+          "role": "code",
+          "tokens_in": 513,
+          "tokens_out": 230,
+          "latency_s": 4.19
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-03",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 535,
+          "tokens_out": 210,
+          "latency_s": 3.99
+        },
+        {
+          "role": "code",
+          "tokens_in": 686,
+          "tokens_out": 258,
+          "latency_s": 3.89
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-04",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 445,
+          "tokens_out": 217,
+          "latency_s": 4.15
+        },
+        {
+          "role": "code",
+          "tokens_in": 513,
+          "tokens_out": 91,
+          "latency_s": 2.23
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-05",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 417,
+          "tokens_out": 421,
+          "latency_s": 7.66
+        },
+        {
+          "role": "code",
+          "tokens_in": 496,
+          "tokens_out": 106,
+          "latency_s": 2.49
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-06",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 631,
+          "tokens_out": 8192,
+          "latency_s": 114.06
+        },
+        {
+          "role": "code",
+          "tokens_in": 638,
+          "tokens_out": 701,
+          "latency_s": 10.49
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-07",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 13,
+      "tests_total": 13,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 433,
+          "tokens_out": 249,
+          "latency_s": 3.63
+        },
+        {
+          "role": "code",
+          "tokens_in": 550,
+          "tokens_out": 134,
+          "latency_s": 2.85
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-08",
+      "category": "feature",
+      "passed": false,
+      "iterations": 3,
+      "tests_passed": 0,
+      "tests_total": 0,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 550,
+          "tokens_out": 8192,
+          "latency_s": 132.2
+        },
+        {
+          "role": "code",
+          "tokens_in": 557,
+          "tokens_out": 8192,
+          "latency_s": 134.17
+        },
+        {
+          "role": "critic",
+          "tokens_in": 801,
+          "tokens_out": 8192,
+          "latency_s": 131.56
+        },
+        {
+          "role": "code",
+          "tokens_in": 580,
+          "tokens_out": 8192,
+          "latency_s": 126.21
+        },
+        {
+          "role": "critic",
+          "tokens_in": 803,
+          "tokens_out": 8192,
+          "latency_s": 127.9
+        },
+        {
+          "role": "code",
+          "tokens_in": 580,
+          "tokens_out": 8192,
+          "latency_s": 132.93
+        }
+      ],
+      "error": "budget exhausted after 3 code attempts"
+    },
+    {
+      "task_id": "feature-09",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 566,
+          "tokens_out": 1083,
+          "latency_s": 18.89
+        },
+        {
+          "role": "code",
+          "tokens_in": 720,
+          "tokens_out": 290,
+          "latency_s": 4.64
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-10",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 491,
+          "tokens_out": 940,
+          "latency_s": 12.83
+        },
+        {
+          "role": "code",
+          "tokens_in": 634,
+          "tokens_out": 182,
+          "latency_s": 3.02
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-11",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 578,
+          "tokens_out": 3957,
+          "latency_s": 53.89
+        },
+        {
+          "role": "code",
+          "tokens_in": 807,
+          "tokens_out": 1218,
+          "latency_s": 16.4
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-12",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 462,
+          "tokens_out": 230,
+          "latency_s": 3.92
+        },
+        {
+          "role": "code",
+          "tokens_in": 549,
+          "tokens_out": 211,
+          "latency_s": 3.59
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-13",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 571,
+          "tokens_out": 4206,
+          "latency_s": 65.2
+        },
+        {
+          "role": "code",
+          "tokens_in": 782,
+          "tokens_out": 1734,
+          "latency_s": 25.12
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-14",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 485,
+          "tokens_out": 507,
+          "latency_s": 8.68
+        },
+        {
+          "role": "code",
+          "tokens_in": 586,
+          "tokens_out": 501,
+          "latency_s": 8.58
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-15",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 15,
+      "tests_total": 15,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 677,
+          "tokens_out": 6304,
+          "latency_s": 90.81
+        },
+        {
+          "role": "code",
+          "tokens_in": 1013,
+          "tokens_out": 3811,
+          "latency_s": 57.98
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-16",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 640,
+          "tokens_out": 530,
+          "latency_s": 7.07
+        },
+        {
+          "role": "code",
+          "tokens_in": 803,
+          "tokens_out": 489,
+          "latency_s": 6.21
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "feature-17",
+      "category": "feature",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 625,
+          "tokens_out": 6806,
+          "latency_s": 94.1
+        },
+        {
+          "role": "code",
+          "tokens_in": 945,
+          "tokens_out": 5617,
+          "latency_s": 74.26
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-01",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 10,
+      "tests_total": 10,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 683,
+          "tokens_out": 559,
+          "latency_s": 7.48
+        },
+        {
+          "role": "code",
+          "tokens_in": 866,
+          "tokens_out": 573,
+          "latency_s": 8.59
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-02",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 475,
+          "tokens_out": 552,
+          "latency_s": 7.57
+        },
+        {
+          "role": "code",
+          "tokens_in": 595,
+          "tokens_out": 289,
+          "latency_s": 4.86
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-03",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 542,
+          "tokens_out": 1111,
+          "latency_s": 15.3
+        },
+        {
+          "role": "code",
+          "tokens_in": 682,
+          "tokens_out": 199,
+          "latency_s": 3.49
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-04",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 549,
+          "tokens_out": 691,
+          "latency_s": 10.77
+        },
+        {
+          "role": "code",
+          "tokens_in": 680,
+          "tokens_out": 355,
+          "latency_s": 4.77
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-05",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 11,
+      "tests_total": 11,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 569,
+          "tokens_out": 740,
+          "latency_s": 8.9
+        },
+        {
+          "role": "code",
+          "tokens_in": 781,
+          "tokens_out": 446,
+          "latency_s": 5.96
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-06",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 691,
+          "tokens_out": 755,
+          "latency_s": 9.98
+        },
+        {
+          "role": "code",
+          "tokens_in": 901,
+          "tokens_out": 452,
+          "latency_s": 5.91
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-07",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 2,
+      "tests_passed": 8,
+      "tests_total": 8,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 443,
+          "tokens_out": 1424,
+          "latency_s": 19.69
+        },
+        {
+          "role": "code",
+          "tokens_in": 579,
+          "tokens_out": 552,
+          "latency_s": 8.06
+        },
+        {
+          "role": "critic",
+          "tokens_in": 767,
+          "tokens_out": 943,
+          "latency_s": 11.93
+        },
+        {
+          "role": "code",
+          "tokens_in": 704,
+          "tokens_out": 440,
+          "latency_s": 6.94
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-08",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 13,
+      "tests_total": 13,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 696,
+          "tokens_out": 1792,
+          "latency_s": 24.24
+        },
+        {
+          "role": "code",
+          "tokens_in": 1047,
+          "tokens_out": 465,
+          "latency_s": 5.1
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-09",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 710,
+          "tokens_out": 8192,
+          "latency_s": 126.07
+        },
+        {
+          "role": "code",
+          "tokens_in": 717,
+          "tokens_out": 1469,
+          "latency_s": 19.99
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-10",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 540,
+          "tokens_out": 1178,
+          "latency_s": 16.42
+        },
+        {
+          "role": "code",
+          "tokens_in": 726,
+          "tokens_out": 216,
+          "latency_s": 3.18
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-11",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 7,
+      "tests_total": 7,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 610,
+          "tokens_out": 305,
+          "latency_s": 4.78
+        },
+        {
+          "role": "code",
+          "tokens_in": 814,
+          "tokens_out": 444,
+          "latency_s": 4.4
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-12",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 3,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 510,
+          "tokens_out": 2109,
+          "latency_s": 29.76
+        },
+        {
+          "role": "code",
+          "tokens_in": 656,
+          "tokens_out": 504,
+          "latency_s": 8.28
+        },
+        {
+          "role": "critic",
+          "tokens_in": 798,
+          "tokens_out": 553,
+          "latency_s": 9.12
+        },
+        {
+          "role": "code",
+          "tokens_in": 788,
+          "tokens_out": 979,
+          "latency_s": 14.95
+        },
+        {
+          "role": "critic",
+          "tokens_in": 811,
+          "tokens_out": 272,
+          "latency_s": 4.77
+        },
+        {
+          "role": "code",
+          "tokens_in": 793,
+          "tokens_out": 1956,
+          "latency_s": 30.32
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-13",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 9,
+      "tests_total": 9,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 588,
+          "tokens_out": 563,
+          "latency_s": 7.2
+        },
+        {
+          "role": "code",
+          "tokens_in": 773,
+          "tokens_out": 251,
+          "latency_s": 3.66
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-14",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 14,
+      "tests_total": 14,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 923,
+          "tokens_out": 2031,
+          "latency_s": 26.94
+        },
+        {
+          "role": "code",
+          "tokens_in": 1333,
+          "tokens_out": 1730,
+          "latency_s": 25.23
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-15",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 741,
+          "tokens_out": 4483,
+          "latency_s": 60.49
+        },
+        {
+          "role": "code",
+          "tokens_in": 1053,
+          "tokens_out": 861,
+          "latency_s": 11.69
+        }
+      ],
+      "error": null
+    },
+    {
+      "task_id": "refactor-16",
+      "category": "refactor",
+      "passed": true,
+      "iterations": 1,
+      "tests_passed": 12,
+      "tests_total": 12,
+      "phases": [
+        {
+          "role": "reason",
+          "tokens_in": 832,
+          "tokens_out": 2313,
+          "latency_s": 29.77
+        },
+        {
+          "role": "code",
+          "tokens_in": 1195,
+          "tokens_out": 552,
+          "latency_s": 7.5
+        }
+      ],
+      "error": null
+    }
+  ]
+}
