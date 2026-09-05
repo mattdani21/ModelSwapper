@@ -1,5 +1,12 @@
 # STATE.md — ModelSwapper (SwapOS)
 
+## Review checkpoint — 2026-09-05
+
+Source review confirms implemented `pipeline/` and `router/` code. The historical empty-stub description below is obsolete. G1.3 and G1.5 remain open measurements. See [reviewed context](docs/execution/CONTEXT.md) and [work packets](docs/execution/WORK_PACKETS.md); this documentation establishes no new performance result.
+
+The following sections are historical status notes; use the checkpoint above and the linked source map for current code presence.
+
+
 ## Current state
 
 - **G1.3 lever (issue #16) IMPLEMENTED + MEASURED + reviewer-approved:**

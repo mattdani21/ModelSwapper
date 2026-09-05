@@ -60,3 +60,7 @@ benchmarks/     # tasks/ (the 50-task suite), harness/ (grader + runners — sac
 hardware/       # per-tier configs and tuning profiles (tiers.yaml)
 docs/adr/       # ADRs, one per non-obvious choice
 ```
+
+## Execution package (reviewed 2026-09-05)
+
+For the requested intent, roadmap, technical contracts and developer/test work packets, start at [docs/execution/README.md](docs/execution/README.md). Repository-scoped delivery and verification skills are under `.agents/skills/`. Existing instructions and domain constraints above remain in force.
