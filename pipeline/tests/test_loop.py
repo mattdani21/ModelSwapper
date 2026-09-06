@@ -1,18 +1,36 @@
 """Loop tests with the fake backend (CPU-only gates for Phase 1)."""
+import hashlib
 import json
 import os
+import re
 import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from pipeline.loop import run_task, kv_checkpoint_name  # noqa: E402
+from pipeline.loop import file_sha256, kv_checkpoint_name, run_task  # noqa: E402
 from pipeline.prompts import parse_plan  # noqa: E402
 from router.rules import DeterministicRouter  # noqa: E402
 from runtime.fake_backend import FakeBackend  # noqa: E402
 
 EXAMPLE = os.path.join("benchmarks", "tasks", "_EXAMPLE")
 MODELS = {"reason": "fake-r.gguf", "code": "fake-c.gguf", "review": "fake-v.gguf"}
+
+
+def _write_model(dirpath: str, name: str, content: bytes) -> str:
+    """Tiny fake artifact bytes (never real weights) + its path."""
+    path = os.path.join(dirpath, name)
+    with open(path, "wb") as f:
+        f.write(content)
+    return path
+
+
+def _read_task_texts() -> tuple:
+    with open(os.path.join(EXAMPLE, "problem.md"), encoding="utf-8") as f:
+        problem = f.read()
+    with open(os.path.join(EXAMPLE, "starter", "solution.py"), encoding="utf-8") as f:
+        starter = f.read()
+    return problem, starter
 
 
 def _reference_text() -> str:
@@ -259,11 +277,20 @@ def _retry_factory(backends, fail_restore=False):
 
 def test_kv_cache_saves_after_first_code_attempt_restores_on_retries():
     """G1.3 (issue #16): with kv_cache_dir set, the CODE phase checkpoints
-    after attempt 1 and restores the SAME checkpoint on every retry."""
+    after attempt 1 and restores the SAME checkpoint on every retry.
+    SWAP-01: the name is content-addressed from the real artifact bytes."""
     backends = []
-    with tempfile.TemporaryDirectory() as kvdir:
-        r = run_task(EXAMPLE, MODELS, _retry_factory(backends),
+    with tempfile.TemporaryDirectory() as kvdir, tempfile.TemporaryDirectory() as modeldir:
+        code_model = _write_model(modeldir, "fake-c.gguf", b"fake code weights (no real model)")
+        models = dict(MODELS, code=code_model)
+        r = run_task(EXAMPLE, models, _retry_factory(backends),
                      max_iterations=3, kv_cache_dir=kvdir)
+        # the checkpoint name is deterministic per (model content, task, plan)
+        # — rebuild it from the same inputs the loop used (task files + empty
+        # plan); the fake REASON phase returns exactly this plan text
+        problem, starter = _read_task_texts()
+        expected = kv_checkpoint_name(file_sha256(code_model), "_EXAMPLE",
+                                      problem, starter, "1. plan\n2. implement")
     assert r.passed is True
     assert r.iterations == 2
     code_backends = [b for b in backends if b.model_path.endswith("fake-c.gguf")]
@@ -274,14 +301,7 @@ def test_kv_cache_saves_after_first_code_attempt_restores_on_retries():
     assert len(saves) == 1, f"attempt 1 must save exactly once, got {saves}"
     assert len(restores) == 1, f"retry must restore exactly once, got {restores}"
     assert saves[0][1] == restores[0][1], "retry must restore the attempt-1 checkpoint"
-    # the checkpoint name is deterministic per (model, task, plan) — rebuild it
-    # from the same inputs the loop used (task files + empty plan)
-    with open(os.path.join(EXAMPLE, "problem.md")) as f:
-        problem = f.read()
-    with open(os.path.join(EXAMPLE, "starter", "solution.py")) as f:
-        starter = f.read()
-    # the fake REASON phase returns this exact plan text; task_id = basename
-    assert saves[0][1] == kv_checkpoint_name(MODELS["code"], "_EXAMPLE", problem, starter, "1. plan\n2. implement")
+    assert saves[0][1] == expected
     # phase records carry the prefill + KV facts
     code_phases = [p for p in r.phases if p["role"] == "code"]
     assert code_phases[0]["kv_saved"] is True and code_phases[0]["kv_used"] is False
@@ -303,8 +323,10 @@ def test_kv_restore_failure_falls_back_to_full_prefill():
     """Correctness first: a failed restore must not fail the phase — the
     backend falls back to a full prefill and the loop still completes."""
     backends = []
-    with tempfile.TemporaryDirectory() as kvdir:
-        r = run_task(EXAMPLE, MODELS, _retry_factory(backends, fail_restore=True),
+    with tempfile.TemporaryDirectory() as kvdir, tempfile.TemporaryDirectory() as modeldir:
+        code_model = _write_model(modeldir, "fake-c.gguf", b"fake code weights (no real model)")
+        models = dict(MODELS, code=code_model)
+        r = run_task(EXAMPLE, models, _retry_factory(backends, fail_restore=True),
                      max_iterations=3, kv_cache_dir=kvdir)
     assert r.passed is True, f"restore failure must not break the retry: {r.error}"
     retry = [p for p in r.phases if p["role"] == "code"][1]
@@ -312,11 +334,161 @@ def test_kv_restore_failure_falls_back_to_full_prefill():
     assert retry["prompt_n"] == 300, "fallback must full-prefill (no cache benefit)"
 
 
+def test_kv_checkpoint_name_content_addressed_fixtures():
+    """SWAP-01 AC1 fixtures: same byte count with different content gives
+    different names; identical bytes at a different path give the same name;
+    the digest is the full 64-hex SHA-256 of the artifact."""
+    with tempfile.TemporaryDirectory() as d1, tempfile.TemporaryDirectory() as d2:
+        same_dir_a = _write_model(d1, "code-a.gguf", b"x" * 4096)
+        same_size_b = _write_model(d1, "code-b.gguf", b"y" * 4096)  # same bytes count
+        other_path_a = _write_model(d2, "code-a.gguf", b"x" * 4096)  # identical bytes
+        d_a = file_sha256(same_dir_a)
+        assert d_a == file_sha256(other_path_a), "digest follows content, not path"
+        assert d_a != file_sha256(same_size_b), "same size, different bytes -> different digest"
+        assert re.fullmatch(r"[0-9a-f]{64}", d_a), "full SHA-256 hex digest"
+        n_a = kv_checkpoint_name(d_a, "t1", "problem", "starter", "plan")
+        assert n_a == kv_checkpoint_name(file_sha256(other_path_a), "t1", "problem",
+                                         "starter", "plan")
+        assert n_a != kv_checkpoint_name(file_sha256(same_size_b), "t1", "problem",
+                                         "starter", "plan")
+        assert n_a.startswith("kv-") and n_a.endswith(".bin")
+        assert re.fullmatch(r"kv-[0-9a-f]{64}\.bin", n_a), "entire digest in the name"
+
+
 def test_kv_checkpoint_name_deterministic_and_sensitive():
-    base = kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan")
-    assert base == kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan")
-    assert base == kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan")
-    assert base != kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter", "plan2")
-    assert base != kv_checkpoint_name("models/code.gguf", "t2", "problem", "starter", "plan")
-    assert base != kv_checkpoint_name("models/code.gguf", "t1", "problem", "starter2", "plan")
-    assert base.startswith("kv-") and base.endswith(".bin")
+    """Same inputs -> same name; every identity input (task/problem/starter/
+    plan) participates; the model artifact digest is never substituted."""
+    with tempfile.TemporaryDirectory() as d:
+        digest = file_sha256(_write_model(d, "code.gguf", b"fake weights (no real model)"))
+    base = kv_checkpoint_name(digest, "t1", "problem", "starter", "plan")
+    assert base == kv_checkpoint_name(digest, "t1", "problem", "starter", "plan")
+    assert base != kv_checkpoint_name(digest, "t1", "problem", "starter", "plan2")
+    assert base != kv_checkpoint_name(digest, "t2", "problem", "starter", "plan")
+    assert base != kv_checkpoint_name(digest, "t1", "problem2", "starter", "plan")
+    assert base != kv_checkpoint_name(digest, "t1", "problem", "starter2", "plan")
+    assert base != kv_checkpoint_name("0" * 64, "t1", "problem", "starter", "plan")
+    assert kv_checkpoint_name(None, "t1", "problem", "starter", "plan") is None
+    assert kv_checkpoint_name("", "t1", "problem", "starter", "plan") is None
+
+
+def test_kv_checkpoint_name_canonical_identity_object():
+    """SWAP-01 contract pin: name = kv-<sha256(sorted JSON identity, utf-8)>.bin
+    with identity_format_version 1 — locks the canonical serialization so any
+    future drift breaks loudly."""
+    digest = "ab" * 32
+    identity = {
+        "identity_format_version": 1,
+        "model_sha256": digest,
+        "task_id": "t1",
+        "problem": "problem",
+        "starter": "starter",
+        "plan": "plan",
+    }
+    canonical = json.dumps(identity, sort_keys=True, separators=(",", ":"))
+    expected = "kv-" + hashlib.sha256(canonical.encode("utf-8")).hexdigest() + ".bin"
+    assert kv_checkpoint_name(digest, "t1", "problem", "starter", "plan") == expected
+
+
+def test_kv_checkpoint_disabled_when_artifact_missing():
+    """SWAP-01 AC2: an unreadable/missing model artifact disables checkpoint
+    restore/save (no kv ops at all) while normal generation with retries
+    still completes — no empty/all-zero digest is ever substituted."""
+    backends = []
+    with tempfile.TemporaryDirectory() as kvdir, tempfile.TemporaryDirectory() as modeldir:
+        missing = os.path.join(modeldir, "does-not-exist", "fake-c.gguf")
+        models = dict(MODELS, code=missing)
+        assert file_sha256(missing) is None
+        r = run_task(EXAMPLE, models, _retry_factory(backends),
+                     max_iterations=3, kv_cache_dir=kvdir)
+    assert r.passed is True, f"normal generation must still work: {r.error}"
+    assert r.iterations == 2
+    code_backends = [b for b in backends if b.model_path.endswith("fake-c.gguf")]
+    assert len(code_backends) == 2
+    assert all(b.kv_ops == [] for b in code_backends), \
+        "missing artifact must disable both save and restore"
+    code_phases = [p for p in r.phases if p["role"] == "code"]
+    assert all(p["kv_used"] is False and p["kv_saved"] is False for p in code_phases)
+
+
+def test_code_model_digest_computed_once_per_run(monkeypatch):
+    """SWAP-01 AC3: the model artifact is hashed at most once per run_task
+    call — a retry (second code attempt) must never rehash the file."""
+    import pipeline.loop as loop
+    calls = {"n": 0}
+    real = loop.file_sha256
+
+    def counting(path):
+        calls["n"] += 1
+        return real(path)
+
+    monkeypatch.setattr(loop, "file_sha256", counting)
+    backends = []
+    with tempfile.TemporaryDirectory() as kvdir, tempfile.TemporaryDirectory() as modeldir:
+        code_model = _write_model(modeldir, "fake-c.gguf", b"fake code weights (no real model)")
+        r = run_task(EXAMPLE, dict(MODELS, code=code_model), _retry_factory(backends),
+                     max_iterations=3, kv_cache_dir=kvdir)
+    assert r.passed is True
+    assert r.iterations == 2, "test needs a retry to prove no rehash per attempt"
+    assert calls["n"] == 1, f"digest must be computed exactly once per run, got {calls['n']}"
+
+
+def test_precomputed_digest_never_rehashes(monkeypatch):
+    """SWAP-01 AC3: when run_pipeline hands in a digest computed once per CLI
+    run, the loop must not touch the artifact file at all."""
+    import pipeline.loop as loop
+
+    def boom(path):
+        raise AssertionError("loop must not hash when the caller supplied the identity")
+
+    monkeypatch.setattr(loop, "file_sha256", boom)
+    supplied = hashlib.sha256(b"fake code weights (no real model)").hexdigest()
+    backends = []
+    with tempfile.TemporaryDirectory() as kvdir, tempfile.TemporaryDirectory() as modeldir:
+        code_model = _write_model(modeldir, "fake-c.gguf", b"fake code weights (no real model)")
+        r = run_task(EXAMPLE, dict(MODELS, code=code_model), _retry_factory(backends),
+                     max_iterations=3, kv_cache_dir=kvdir,
+                     model_sha256s={"code": supplied})
+        problem, starter = _read_task_texts()
+        expected = kv_checkpoint_name(supplied, "_EXAMPLE", problem, starter,
+                                      "1. plan\n2. implement")
+    assert r.passed is True
+    assert r.iterations == 2
+    code_backends = [b for b in backends if b.model_path.endswith("fake-c.gguf")]
+    ops = code_backends[0].kv_ops + code_backends[1].kv_ops
+    assert ops[0][1] == expected, "precomputed identity must produce the same name"
+
+
+def test_kv_cache_run_private_namespace_no_cross_run_reuse():
+    """SWAP-01: two separate run_task calls against the SAME kv_cache_dir
+    must land in different private namespaces (a second run can never
+    restore the first run's checkpoint files)."""
+    with tempfile.TemporaryDirectory() as kvdir, tempfile.TemporaryDirectory() as modeldir:
+        code_model = _write_model(modeldir, "fake-c.gguf", b"fake code weights (no real model)")
+        models = dict(MODELS, code=code_model)
+
+        def stub_factory(backends):
+            def factory(model_path: str, port: int) -> FakeBackend:
+                name = os.path.basename(model_path)
+                role = {"fake-r.gguf": "reason", "fake-c.gguf": "code",
+                        "fake-v.gguf": "review"}.get(name, "review")
+                b = FakeBackend(model_path, callable_resp={
+                    "reason": lambda p: "1. plan\n2. implement",
+                    "code": lambda p: "def most_common_word(text):\n    return None\n",
+                    "review": lambda p: "no",
+                }[role])
+                backends.append(b)
+                return b
+            return factory
+
+        # two independent runs, same task, same base cache dir
+        run_task(EXAMPLE, models, stub_factory([]), max_iterations=1, kv_cache_dir=kvdir)
+        run_task(EXAMPLE, models, stub_factory([]), max_iterations=1, kv_cache_dir=kvdir)
+        namespaces = sorted(d for d in os.listdir(kvdir) if d.startswith("run-"))
+        assert len(namespaces) == 2, f"each run needs its own private namespace: {namespaces}"
+        assert namespaces[0] != namespaces[1]
+
+
+
+
+
+
