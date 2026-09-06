@@ -1,55 +1,72 @@
-# SWAP-01: content-addressed KV checkpoint identity (G1.3 prerequisite)
+# SWAP-02: guaranteed backend cleanup ownership + pipeline tests in CI (G1.3/G1.5 prerequisite)
 
 ## What
 
-KV checkpoint identity is now content-addressed. `kv_checkpoint_name` no
-longer mixes model path + file size into a truncated 20-hex digest; the
-checkpoint filename is `kv-<sha256>.bin` over a canonical, sorted JSON
-identity object — `identity_format_version: 1`, full model artifact SHA-256,
-task ID, exact problem, starter and plan text — explicitly UTF-8 encoded,
-entire digest used. Two same-size artifacts with different bytes can no
-longer share a checkpoint name, so a stale KV cache derived from different
-model bytes is never restored.
+SWAP-02 (docs/execution packet 2, TECHNICAL_SPEC SWAP-02) guarantees that
+every successfully constructed backend whose `start()` is attempted receives
+**exactly one `stop()` attempt by its owning layer** — including on start
+failure, generation failure, a grader exception and an exhausted retry
+budget — and that a cleanup failure never masks the failure it accompanies.
+All changes are in `pipeline/loop.py`; no backend, grader, retry policy or
+residency architecture changed, and all result/schema shapes are preserved
+(`stop()` still returns eviction seconds).
 
-Supporting changes: the artifact is hashed **once per run per model**
-(`run_pipeline` computes the digest at startup and passes the immutable
-identity into `run_task`; the loop falls back to one hash per `run_task`
-call, never per retry); each `run_task` saves/restores under a **run-private
-namespace** subdirectory until runtime/build identity + context settings
-join the identity; an unreadable/missing artifact **disables** checkpoint
-restore/save for it (no empty/all-zero digest is substituted) while normal
-generation continues. Existing `kv-*.bin` files are ignored optimization
-artifacts; no result JSON migration; `ModelBackend`/`GenerationResult`/
-`TaskRunResult` are unchanged, so cache support stays optional for fakes and
-other backends. New ADR: `docs/adr/0006-content-addressed-kv-checkpoint-identity.md`.
+- **Resident backend** (`run_task`, resident=True): `start()` and the whole
+  task lifecycle (reason/code/review loop) now sit inside one outer
+  `try/finally`. The single owned stop is attempted on every exit path —
+  previously `resident_backend.stop()` only ran on the normal path, so a
+  grader exception or any mid-task error leaked the resident backend.
+- **Per-phase backend**: both `_generate` helpers (the module-level one and
+  `run_task`'s) now call `start()` inside the protected region and attempt
+  the phase's single `stop()` in a `finally`-equivalent, so a `start()`
+  failure or `generate()` failure still gets its one cleanup attempt. The
+  module-level helper previously called `start()` before the `try` (start
+  failure never stopped) and referenced `out` in the `finally` after a
+  failed `generate()` (masking the original error).
+- **Stop-failure semantics**: when `stop()` also fails, the original failure
+  stays the primary error. On a completed task with a recorded phase-named
+  failure, the resident cleanup error is appended to that error rather than
+  replacing it; when a lifecycle exception (e.g. grader exception, resident
+  start failure) is propagating, a failing stop is never allowed to mask it.
+  A failing stop is never retried (exactly one attempt). Failed tasks are
+  never marked passed; error evidence still names the phase ("reason phase
+  failed" / "code phase failed" / "critic phase failed" / "budget exhausted
+  ..." preserved verbatim).
+- **Overlap engine**: untouched — `run_pipeline.py` keeps its existing outer
+  `engine.stop()` ownership (no per-phase double cleanup of the shared
+  engine; `OverlapBackend.stop()` remains a 0.0 no-op).
+- **CI**: the pytest invocation now runs `capsule/tests
+  benchmarks/harness/tests pipeline/tests`; benchmark task structural
+  validation stays.
 
 ## Why
 
-SWAP-01 (docs/execution packet 1, TECHNICAL_SPEC SWAP-01): the previous
-size-mixed identity meant two different same-size artifacts at the same path
-produced the same checkpoint identity (review finding 2 in
-`docs/execution/CONTEXT.md`). G1.3's KV prefix cache is a reliability lever;
-its identity must bind to artifact content, not path/size heuristics.
+G1.3/G1.5 reliability prerequisite (docs/execution WORK_PACKETS SWAP-02):
+failed tasks must release backend resources, and the CI must actually
+exercise the runtime loop. A leaked resident backend or a leaked per-phase
+server turns any reliability measurement into a resource-accounting
+experiment; this packet makes cleanup ownership structural and CI-visible.
 
 ## How tested
 
-New fixtures/tests in `pipeline/tests/test_loop.py` (no real model weights —
-tiny temp artifact files): same byte count / different content → different
-names; identical bytes at a different path → same name; changed
-plan/problem/starter/task → different name; canonical-identity contract pin;
-missing artifact → restore/save disabled and normal retried generation still
-passes; digest computed exactly once per run (retry never rehashes); a
-caller-supplied digest is used without touching the artifact; two runs
-against one cache dir get distinct private namespaces.
+14 new tests in `pipeline/tests/test_loop.py` using instrumented fakes only
+(no models, providers or network): `_FaultyBackend` records `loads`/`stops`
+and can raise on `start()`/`generate()`/`stop()`, counting a stop attempt
+even when the stop itself raises. Verified exactly one owned stop on:
+normal completion (per-phase and resident), start failure, generation
+failure, a monkeypatched grader exception (resident — the former leak — and
+per-phase), and exhausted retry budget; plus original-error-visible-when-
+stop-also-fails on the start, generate, resident and grader paths, and the
+module-level `_generate`. All 21 pre-existing loop tests still pass
+unchanged.
 
-Gates (from repo root):
+Gates (run from the repo root):
 
-1. `python3 -m pytest -q pipeline/tests` → **21 passed**
-2. `uv run --with pytest pytest capsule/tests benchmarks/harness/tests pipeline/tests` → **43 passed**
-   (uv's cache dir had to point at a writable temp dir — the default
+1. `uv run --with pytest pytest capsule/tests benchmarks/harness/tests pipeline/tests` → **57 passed**
+   (uv's cache dir pointed at a writable workspace dir — the default
    `~/.cache/uv` is outside this session's file sandbox)
-3. `python3 benchmarks/harness/validate_tasks.py --tasks-dir benchmarks/tasks` → **structural OK: 50 tasks**
+2. `python3 benchmarks/harness/validate_tasks.py --tasks-dir benchmarks/tasks` → **structural OK: 50 tasks**
 
-Benchmark tasks, the grader/harness and historical result JSON were not
-touched (only `pipeline/loop.py`, `pipeline/run_pipeline.py`,
-`pipeline/tests/test_loop.py`, `docs/adr/0006-*.md`).
+Sacred scope untouched: no edits to `benchmarks/tasks/`,
+`benchmarks/harness/` or any historical result JSON. No number claimed:
+this packet is a measurement-integrity prerequisite for G1.3/G1.5.
