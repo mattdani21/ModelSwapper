@@ -8,9 +8,12 @@ critic that feeds the next CODE attempt.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import os
 import sys
 import time
+import uuid
 from typing import Callable, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -46,26 +49,62 @@ def _generate(
     return out
 
 
-def kv_checkpoint_name(model_path: str, task_id: str, problem: str,
-                       starter: str, plan: str) -> str:
-    """Deterministic slot-checkpoint filename for the CODE phase prefix.
+# KV checkpoint identity format version (SWAP-01, ADR-0006). Bump when the
+# identity payload's field set or canonicalization changes meaning.
+IDENTITY_FORMAT_VERSION = 1
 
-    The cross-turn KV cache (G1.3, issue #16) is keyed per
-    (model, task, plan): the code prompt's task + starter + plan section is
-    byte-identical across retries (only the bounded reviewer feedback
-    changes), so the checkpoint taken after the first code attempt can be
-    restored on every retry. Model file size is mixed in so a swapped GGUF
-    under the same path cannot silently reuse a stale checkpoint.
+
+def file_sha256(path: str) -> Optional[str]:
+    """Full SHA-256 of a file's bytes (lowercase hex), read in a stream.
+
+    Returns None — never a fabricated digest — when the artifact is missing
+    or unreadable, so callers can disable checkpointing for it instead of
+    silently hashing nothing.
     """
-    import hashlib
+    digest = hashlib.sha256()
     try:
-        size = os.path.getsize(model_path)
+        with open(path, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                digest.update(chunk)
     except OSError:
-        size = 0
-    h = hashlib.sha256(
-        f"{model_path}:{size}:{task_id}:{problem}:{starter}:{plan}".encode()
-    ).hexdigest()[:20]
-    return f"kv-{h}.bin"
+        return None
+    return digest.hexdigest()
+
+
+def kv_checkpoint_name(model_sha256: Optional[str], task_id: str, problem: str,
+                       starter: str, plan: str) -> Optional[str]:
+    """Content-addressed slot-checkpoint filename (SWAP-01, ADR-0006).
+
+    Identity is SHA-256 over a canonical, sorted JSON object containing
+    identity format version 1, the full model artifact SHA-256, the task ID
+    and the exact problem, starter and plan text, serialized with
+    sort_keys=True and compact separators, explicitly UTF-8 encoded. The
+    ENTIRE digest is used: ``kv-<64 hex>.bin``. Identity follows artifact
+    CONTENT: two same-size artifacts with different bytes at the same path
+    produce different names, and identical bytes at a different path produce
+    the same name.
+
+    Returns None when no model digest is available (missing/unreadable
+    artifact): the caller must disable checkpoint restore/save for that
+    model and run a normal generation — an empty or all-zero digest is never
+    substituted for real content.
+    """
+    if not model_sha256:
+        return None
+    identity = json.dumps(
+        {
+            "identity_format_version": IDENTITY_FORMAT_VERSION,
+            "model_sha256": model_sha256,
+            "task_id": task_id,
+            "problem": problem,
+            "starter": starter,
+            "plan": plan,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    digest = hashlib.sha256(identity.encode("utf-8")).hexdigest()
+    return f"kv-{digest}.bin"
 
 
 def _log_phase(
@@ -117,6 +156,7 @@ def run_task(
     handoff: str = "capsule",
     resident: bool = False,
     kv_cache_dir: Optional[str] = None,
+    model_sha256s: Optional[dict] = None,
 ) -> TaskRunResult:
     """Run the reason->code->review loop for one task.
 
@@ -132,14 +172,41 @@ def run_task(
         via llama-server's slot save API; every retry restores that checkpoint
         so only the feedback suffix is re-prefilled (FreeToken-style). Any
         restore failure falls back to a full prefill (correctness first).
+        SWAP-01 (ADR-0006): the checkpoint name is content-addressed and the
+        directory is a run-private namespace (see below).
+    model_sha256s (SWAP-01): optional precomputed content digests per model
+        role (e.g. {"code": "<64 hex>"}), hashed ONCE per run by the caller
+        (run_pipeline hashes each artifact once per CLI run). When a role is
+        absent the digest is computed here exactly once per run_task call —
+        never rehashed per retry. A None digest (unreadable artifact)
+        disables checkpointing for that model.
     """
     if handoff not in ("capsule", "naive"):
         raise ValueError(f"handoff must be 'capsule' or 'naive', got {handoff!r}")
+    # SWAP-01 (ADR-0006): run-private cache namespace + once-per-run digest.
+    # Runtime/build identity and context settings are NOT yet part of the
+    # checkpoint identity, so each run_task call saves/restores under a fresh
+    # private subdirectory: unknown runtime metadata can never cause reuse of
+    # a checkpoint from another run. Retries within THIS call share the
+    # namespace, which is what makes the cross-turn cache useful.
+    code_model_sha256: Optional[str] = None
+    if kv_cache_dir:
+        kv_cache_dir = os.path.join(kv_cache_dir, f"run-{uuid.uuid4().hex[:12]}")
+        os.makedirs(kv_cache_dir, exist_ok=True)
+        # Model artifact digest: hashed ONCE per run per model — either
+        # precomputed by the caller or computed here exactly once — then
+        # reused by every retry (never rehash gigabytes per retry). A None
+        # digest (missing/unreadable artifact) disables checkpointing for
+        # that model; no empty/all-zero digest is substituted.
+        if model_sha256s is not None and "code" in model_sha256s:
+            code_model_sha256 = model_sha256s["code"]
+        else:
+            code_model_sha256 = file_sha256(models["code"])
     task_id = os.path.basename(task_dir)
     category = os.path.basename(os.path.dirname(task_dir))
-    with open(os.path.join(task_dir, "problem.md")) as f:
+    with open(os.path.join(task_dir, "problem.md"), encoding="utf-8") as f:
         problem = f.read()
-    with open(os.path.join(task_dir, "starter", "solution.py")) as f:
+    with open(os.path.join(task_dir, "starter", "solution.py"), encoding="utf-8") as f:
         starter = f.read()
 
     capsule = Capsule.new(task_id=task_id, goal=problem[:2000])
@@ -225,11 +292,14 @@ def run_task(
             # G1.3 (issue #16): checkpoint after the FIRST code attempt and
             # restore on retries — the task+starter+plan prefix is byte-
             # identical across retries, only feedback changes, so the retry
-            # only re-prefills the feedback suffix (FreeToken-style).
+            # only re-prefills the feedback suffix (FreeToken-style). SWAP-01
+            # (ADR-0006): the name is content-addressed from the immutable
+            # model digest (hashed once per run) + task/plan text; a None
+            # digest (unreadable artifact) disables restore/save entirely.
             ckpt_name = None
-            if kv_cache_dir:
+            if code_model_sha256 is not None:
                 ckpt_name = kv_checkpoint_name(
-                    models["code"], task_id, problem, starter, plan)
+                    code_model_sha256, task_id, problem, starter, plan)
             out = _generate(
                 models["code"],
                 code_prompt(task_id, problem, starter, plan, bounded_feedback,
