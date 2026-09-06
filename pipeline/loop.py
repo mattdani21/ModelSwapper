@@ -41,12 +41,26 @@ def _generate(
     port: int,
 ) -> GenerationResult:
     backend = backend_factory(model, port)
-    backend.start()
+    out: Optional[GenerationResult] = None
+    completed = False
     try:
+        backend.start()
         out = backend.generate(prompt, max_tokens=max_tokens, temperature=temperature)
+        completed = True
+        return out
     finally:
-        out.evict_s = backend.stop()
-    return out
+        # SWAP-02: the phase owns this backend — exactly ONE stop() attempt
+        # even when start() or generate() raised, and a stop() failure must
+        # never mask the failure it accompanies.
+        try:
+            evict_s = backend.stop()
+        except BaseException as cleanup_error:  # noqa: BLE001
+            if completed:
+                raise  # no prior failure in flight: the cleanup failure IS the error
+            # else: a start/generate failure is propagating — keep it primary
+        else:
+            if out is not None:
+                out.evict_s = evict_s
 
 
 # KV checkpoint identity format version (SWAP-01, ADR-0006). Bump when the
@@ -221,7 +235,6 @@ def run_task(
     resident_backend: Optional[ModelBackend] = None
     if resident:
         resident_backend = backend_factory(models["reason"], port_counter[0])
-        resident_backend.start()
         port_counter[0] += 1
 
     def _generate(
@@ -242,6 +255,7 @@ def run_task(
         if kv_cache_dir and hasattr(backend, "configure_kv_cache"):
             backend.configure_kv_cache(kv_cache_dir)  # type: ignore[attr-defined]
         out: Optional[GenerationResult] = None
+        completed = False
         try:
             backend.start()
             out = backend.generate(
@@ -249,11 +263,22 @@ def run_task(
                 prefetch_model=prefetch_model,
                 kv_restore=kv_restore, kv_save=kv_save,
             )
+            completed = True
             return out
         finally:
-            evict_s = backend.stop()
-            if out is not None:
-                out.evict_s = evict_s
+            # SWAP-02: the phase owns this backend — exactly ONE stop()
+            # attempt even when start() or generate() raised, and a stop()
+            # failure must never mask the failure it accompanies (the
+            # caller records the phase-named error from the original).
+            try:
+                evict_s = backend.stop()
+            except BaseException as cleanup_error:  # noqa: BLE001
+                if completed:
+                    raise  # no prior failure in flight: the cleanup failure IS the error
+                # else: a start/generate failure is propagating — keep it primary
+            else:
+                if out is not None:
+                    out.evict_s = evict_s
 
     def _context_tokens_est() -> int:
         if handoff == "naive":
@@ -262,107 +287,127 @@ def run_task(
 
     result = {"passed": False, "tests_passed": 0, "tests_total": 0, "error": None}
     iteration = 0
-    while iteration < max_iterations:
-        # REASON — once per task (iteration 0)
-        if iteration == 0:
+    lifecycle_completed = False
+    try:
+        # SWAP-02: the resident backend is owned by the ENTIRE task lifecycle
+        # below. Exactly one stop() attempt happens no matter how the task ends
+        # - resident start failure, a phase failure, a grader exception,
+        # budget exhaustion or a normal pass - and a stop() failure never
+        # masks the task's own outcome (it is appended to the recorded error
+        # when one exists; a propagating lifecycle failure stays primary).
+        if resident_backend is not None:
+            resident_backend.start()
+        while iteration < max_iterations:
+            # REASON — once per task (iteration 0)
+            if iteration == 0:
+                try:
+                    out = _generate(
+                        models["reason"], reason_prompt(task_id, problem, starter),
+                        max_tokens, temperature, port_counter[0],
+                        prefetch_model=models["code"],  # G2.2: load CODE while REASON plans
+                    )
+                except Exception as e:  # noqa: BLE001
+                    result["error"] = f"reason phase failed: {e}"
+                    break
+                plan = out.text
+                capsule.set_plan(parse_plan(plan))
+                if handoff == "naive":
+                    transcript += f"\n[REASON PLAN]\n{plan}\n"
+                _log_phase(capsule, phases, "reason", models["reason"], out, "ok",
+                           extra={"context_tokens_est": _context_tokens_est()})
+                port_counter[0] += 1
+
+            # CODE
             try:
+                # feedback is bounded (600 chars) in BOTH the capsule decision and
+                # the prompt — an unbounded critic output can overflow the context
+                # on retries (observed: HTTP 400 at 4096 ctx with a 2048-token
+                # critic response). The capsule's own convention is 600.
+                bounded_feedback = feedback[:600] if feedback is not None else None
+                # G1.3 (issue #16): checkpoint after the FIRST code attempt and
+                # restore on retries — the task+starter+plan prefix is byte-
+                # identical across retries, only feedback changes, so the retry
+                # only re-prefills the feedback suffix (FreeToken-style). SWAP-01
+                # (ADR-0006): the name is content-addressed from the immutable
+                # model digest (hashed once per run) + task/plan text; a None
+                # digest (unreadable artifact) disables restore/save entirely.
+                ckpt_name = None
+                if code_model_sha256 is not None:
+                    ckpt_name = kv_checkpoint_name(
+                        code_model_sha256, task_id, problem, starter, plan)
                 out = _generate(
-                    models["reason"], reason_prompt(task_id, problem, starter),
+                    models["code"],
+                    code_prompt(task_id, problem, starter, plan, bounded_feedback,
+                                transcript=transcript if handoff == "naive" else None),
                     max_tokens, temperature, port_counter[0],
-                    prefetch_model=models["code"],  # G2.2: load CODE while REASON plans
+                    prefetch_model=models["review"],  # G2.2: load the critic while CODE writes
+                    kv_restore=ckpt_name if bounded_feedback is not None else None,
+                    kv_save=ckpt_name if bounded_feedback is None else None,
                 )
             except Exception as e:  # noqa: BLE001
-                result["error"] = f"reason phase failed: {e}"
+                result["error"] = f"code phase failed: {e}"
                 break
-            plan = out.text
-            capsule.set_plan(parse_plan(plan))
+            candidate = extract_code(out.text)
+            capsule.add_artifact("solution.py", candidate, kind="code")
             if handoff == "naive":
-                transcript += f"\n[REASON PLAN]\n{plan}\n"
-            _log_phase(capsule, phases, "reason", models["reason"], out, "ok",
+                transcript += f"\n[CODE ATTEMPT]\n{candidate}\n"
+            _log_phase(capsule, phases, "code", models["code"], out, "ok",
                        extra={"context_tokens_est": _context_tokens_est()})
             port_counter[0] += 1
 
-        # CODE
-        try:
-            # feedback is bounded (600 chars) in BOTH the capsule decision and
-            # the prompt — an unbounded critic output can overflow the context
-            # on retries (observed: HTTP 400 at 4096 ctx with a 2048-token
-            # critic response). The capsule's own convention is 600.
-            bounded_feedback = feedback[:600] if feedback is not None else None
-            # G1.3 (issue #16): checkpoint after the FIRST code attempt and
-            # restore on retries — the task+starter+plan prefix is byte-
-            # identical across retries, only feedback changes, so the retry
-            # only re-prefills the feedback suffix (FreeToken-style). SWAP-01
-            # (ADR-0006): the name is content-addressed from the immutable
-            # model digest (hashed once per run) + task/plan text; a None
-            # digest (unreadable artifact) disables restore/save entirely.
-            ckpt_name = None
-            if code_model_sha256 is not None:
-                ckpt_name = kv_checkpoint_name(
-                    code_model_sha256, task_id, problem, starter, plan)
-            out = _generate(
-                models["code"],
-                code_prompt(task_id, problem, starter, plan, bounded_feedback,
-                            transcript=transcript if handoff == "naive" else None),
-                max_tokens, temperature, port_counter[0],
-                prefetch_model=models["review"],  # G2.2: load the critic while CODE writes
-                kv_restore=ckpt_name if bounded_feedback is not None else None,
-                kv_save=ckpt_name if bounded_feedback is None else None,
+            # REVIEW (mechanical — the sacred grader)
+            g = grade(task_dir, solution_text=candidate)
+            passed = bool(g["pass"])
+            result["tests_passed"] = g["tests_passed"]
+            result["tests_total"] = g["tests_total"]
+            _log_phase(
+                capsule, phases, "review", "grader", None,
+                "ok" if passed else "retry",
+                extra={"tests_passed": g["tests_passed"], "tests_total": g["tests_total"],
+                       "context_tokens_est": _context_tokens_est()},
             )
-        except Exception as e:  # noqa: BLE001
-            result["error"] = f"code phase failed: {e}"
-            break
-        candidate = extract_code(out.text)
-        capsule.add_artifact("solution.py", candidate, kind="code")
-        if handoff == "naive":
-            transcript += f"\n[CODE ATTEMPT]\n{candidate}\n"
-        _log_phase(capsule, phases, "code", models["code"], out, "ok",
-                   extra={"context_tokens_est": _context_tokens_est()})
-        port_counter[0] += 1
+            if passed:
+                result["passed"] = True
+                break
 
-        # REVIEW (mechanical — the sacred grader)
-        g = grade(task_dir, solution_text=candidate)
-        passed = bool(g["pass"])
-        result["tests_passed"] = g["tests_passed"]
-        result["tests_total"] = g["tests_total"]
-        _log_phase(
-            capsule, phases, "review", "grader", None,
-            "ok" if passed else "retry",
-            extra={"tests_passed": g["tests_passed"], "tests_total": g["tests_total"],
-                   "context_tokens_est": _context_tokens_est()},
-        )
-        if passed:
-            result["passed"] = True
-            break
+            # budget exhausted -> fail
+            if iteration + 1 >= max_iterations:
+                result["error"] = f"budget exhausted after {max_iterations} code attempts"
+                break
 
-        # budget exhausted -> fail
-        if iteration + 1 >= max_iterations:
-            result["error"] = f"budget exhausted after {max_iterations} code attempts"
-            break
+            # CRITIC (model) -> feedback for the next CODE attempt
+            try:
+                out2 = _generate(
+                    models["review"],
+                    critic_prompt(task_id, problem, candidate, g["output_tail"],
+                                  transcript=transcript if handoff == "naive" else None),
+                    max_tokens, temperature, port_counter[0],
+                    prefetch_model=models["code"],  # G2.2: load CODE while the critic reviews
+                )
+            except Exception as e:  # noqa: BLE001
+                result["error"] = f"critic phase failed: {e}"
+                break
+            feedback = out2.text
+            capsule.add_decision("review", "retry", feedback[:600])
+            if handoff == "naive":
+                transcript += f"\n[CRITIC FEEDBACK]\n{feedback}\n"
+            _log_phase(capsule, phases, "critic", models["review"], out2, "ok",
+                       extra={"context_tokens_est": _context_tokens_est()})
+            port_counter[0] += 1
+            iteration += 1
 
-        # CRITIC (model) -> feedback for the next CODE attempt
-        try:
-            out2 = _generate(
-                models["review"],
-                critic_prompt(task_id, problem, candidate, g["output_tail"],
-                              transcript=transcript if handoff == "naive" else None),
-                max_tokens, temperature, port_counter[0],
-                prefetch_model=models["code"],  # G2.2: load CODE while the critic reviews
-            )
-        except Exception as e:  # noqa: BLE001
-            result["error"] = f"critic phase failed: {e}"
-            break
-        feedback = out2.text
-        capsule.add_decision("review", "retry", feedback[:600])
-        if handoff == "naive":
-            transcript += f"\n[CRITIC FEEDBACK]\n{feedback}\n"
-        _log_phase(capsule, phases, "critic", models["review"], out2, "ok",
-                   extra={"context_tokens_est": _context_tokens_est()})
-        port_counter[0] += 1
-        iteration += 1
-
-    if resident_backend is not None:
-        resident_backend.stop()
+        lifecycle_completed = True
+    finally:
+        if resident_backend is not None:
+            try:
+                resident_backend.stop()
+            except BaseException as cleanup_error:  # noqa: BLE001
+                if lifecycle_completed and not result["passed"] and result["error"] is not None:
+                    # keep the phase-named failure as the primary error (SWAP-02)
+                    result["error"] = f"{result['error']} (resident backend cleanup failed: {cleanup_error})"
+                elif lifecycle_completed:
+                    raise  # no earlier failure in flight: the cleanup failure IS the error
+                # else: a lifecycle failure is propagating - keep it primary
 
     if capsule_dir:
         os.makedirs(capsule_dir, exist_ok=True)
