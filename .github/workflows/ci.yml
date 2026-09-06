@@ -15,7 +15,7 @@ jobs:
           python-version: "3.11"
       - name: Install deps
         run: pip install --quiet pytest jsonschema
-      - name: Capsule + harness tests
-        run: pytest capsule/tests benchmarks/harness/tests -q
+      - name: Capsule + harness + pipeline tests (SWAP-02: pipeline/tests in CI)
+        run: pytest capsule/tests benchmarks/harness/tests pipeline/tests -q
       - name: Benchmark task structural validation
         run: python3 benchmarks/harness/validate_tasks.py --tasks-dir benchmarks/tasks
