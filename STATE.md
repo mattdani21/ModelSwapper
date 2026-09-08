@@ -1,5 +1,18 @@
 # STATE.md — ModelSwapper (SwapOS)
 
+## Landing record — 2026-09-08 (main @ f42d432)
+
+SWAP-01 + SWAP-02 (docs/execution packets 1–2) merged to main (merges
+2e80f40, 5dfc7d1; base 929fbdd): content-addressed KV checkpoint identity
+(ADR-0006) and guaranteed single-owner backend cleanup + pipeline tests in
+CI. Content reviews APPROVED (t_3510735a, t_bb27e02b; verify lanes
+t_cb8dac13, t_115aeca6). Gates re-run on the merged tree: 57 passed
+(capsule 17 + harness 5 + pipeline 35), 50-task structural OK, sacred
+scope (benchmarks/tasks, harness, results, runtime) untouched. G1.3 (#7)
+and G1.5 (#9) remain open until their numerical bars are measured; next
+per docs/execution ROADMAP: SWAP-03 corrected-cache comparison and SWAP-04
+T0 certification on authorized hardware — not estimated, not fabricated.
+
 ## Review checkpoint — 2026-09-05
 
 Source review confirms implemented `pipeline/` and `router/` code. The historical empty-stub description below is obsolete. G1.3 and G1.5 remain open measurements. See [reviewed context](docs/execution/CONTEXT.md) and [work packets](docs/execution/WORK_PACKETS.md); this documentation establishes no new performance result.
