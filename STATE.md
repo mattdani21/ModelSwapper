@@ -1,6 +1,6 @@
 # STATE.md — ModelSwapper (SwapOS)
 
-## Landing record — 2026-09-08 (main @ f42d432)
+## Landing record — 2026-09-08 (main @ 7b52b60)
 
 SWAP-01 + SWAP-02 (docs/execution packets 1–2) merged to main (merges
 2e80f40, 5dfc7d1; base 929fbdd): content-addressed KV checkpoint identity
