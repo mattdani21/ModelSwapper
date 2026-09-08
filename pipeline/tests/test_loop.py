@@ -6,8 +6,11 @@ import re
 import sys
 import tempfile
 
+import pytest
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+from pipeline.contracts import GenerationResult  # noqa: E402
 from pipeline.loop import file_sha256, kv_checkpoint_name, run_task  # noqa: E402
 from pipeline.prompts import parse_plan  # noqa: E402
 from router.rules import DeterministicRouter  # noqa: E402
@@ -486,6 +489,264 @@ def test_kv_cache_run_private_namespace_no_cross_run_reuse():
         namespaces = sorted(d for d in os.listdir(kvdir) if d.startswith("run-"))
         assert len(namespaces) == 2, f"each run needs its own private namespace: {namespaces}"
         assert namespaces[0] != namespaces[1]
+
+
+# ---------------------------------------------------------------------------
+# SWAP-02: backend cleanup ownership (docs/execution packet 2, G1.3/G1.5).
+# Instrumented fakes only — no models, no providers, no network. Every fake
+# counts loads/stops, so "exactly one owned stop" is observed directly.
+# ---------------------------------------------------------------------------
+
+class _FaultyBackend(FakeBackend):
+    """FakeBackend that records lifecycle calls and can raise on demand.
+
+    The stop() attempt is recorded BEFORE any injected stop failure, so
+    ``stops`` counts cleanup ATTEMPTS (the owner must attempt stop exactly
+    once even when the stop itself raises).
+    """
+
+    def __init__(self, model_path, callable_resp=None, *, fail_start=False,
+                 fail_generate=False, fail_stop=False):
+        super().__init__(model_path, callable_resp=callable_resp)
+        self.fail_start = fail_start
+        self.fail_generate = fail_generate
+        self.fail_stop = fail_stop
+
+    def start(self) -> None:
+        if self.fail_start:
+            raise RuntimeError(f"start failed for {self.model_path}")
+        super().start()
+
+    def generate(self, prompt, max_tokens=2048, temperature=0.2,
+                 prefetch_model=None, kv_restore=None, kv_save=None) -> GenerationResult:
+        if self.fail_generate:
+            raise RuntimeError(f"generate failed for {self.model_path}")
+        return super().generate(prompt, max_tokens=max_tokens, temperature=temperature,
+                                prefetch_model=prefetch_model, kv_restore=kv_restore,
+                                kv_save=kv_save)
+
+    def stop(self) -> float:
+        result = super().stop()  # record the attempt first
+        if self.fail_stop:
+            raise RuntimeError(f"stop failed for {self.model_path}")
+        return result
+
+
+def _fault_factory(role_faults, role_behaviours=None):
+    """Factory building _FaultyBackend per role; returns (factory, backends).
+
+    role_faults: {'reason'|'code'|'review': {'fail_start': bool,
+                                              'fail_generate': bool,
+                                              'fail_stop': bool}}
+    role_behaviours overrides the default scripted responses per role.
+    """
+    behaviours = {
+        "reason": lambda p: "1. plan\n2. implement",
+        "code": lambda p: "def most_common_word(text):\n    return None\n",
+        "review": lambda p: "make the candidate implement the real algorithm",
+    }
+    for role, behaviour in (role_behaviours or {}).items():
+        behaviours[role] = behaviour
+    backends = []
+
+    def factory(model_path: str, port: int) -> _FaultyBackend:
+        name = os.path.basename(model_path)
+        role = {"fake-r.gguf": "reason", "fake-c.gguf": "code",
+                "fake-v.gguf": "review"}.get(name, "review")
+        b = _FaultyBackend(model_path, callable_resp=behaviours[role],
+                           **(role_faults or {}).get(role, {}))
+        backends.append(b)
+        return b
+    return factory, backends
+
+
+def test_phase_backends_stopped_exactly_once_on_normal_completion():
+    """AC1: every per-phase backend constructed on a passing task is started
+    and stopped exactly once (reason + code; the grader needs no backend)."""
+    factory, backends = _fault_factory({}, {"code": lambda p: _reference_text()})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3)
+    assert r.passed is True
+    assert [b.model_path for b in backends] == [MODELS["reason"], MODELS["code"]]
+    for b in backends:
+        assert b.loads == 1, f"{b.model_path}: expected one start, got {b.loads}"
+        assert b.stops == 1, f"{b.model_path}: expected exactly one stop, got {b.stops}"
+
+
+def test_start_failure_backend_stopped_exactly_once():
+    """AC1: a phase whose backend start() raises still gets its one stop."""
+    factory, backends = _fault_factory({"reason": {"fail_start": True}}, {})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3)
+    assert r.passed is False
+    assert "reason phase failed" in r.error, r.error
+    assert "start failed" in r.error, r.error
+    assert len(backends) == 1, "no later phase may run after a reason failure"
+    assert backends[0].loads == 0
+    assert backends[0].stops == 1, f"expected exactly one stop, got {backends[0].stops}"
+
+
+def test_generate_failure_backend_stopped_exactly_once():
+    """AC1: a phase whose generate() raises still gets its one stop; the
+    phase-named error names the original failure."""
+    factory, backends = _fault_factory({"code": {"fail_generate": True}}, {})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3)
+    assert r.passed is False
+    assert "code phase failed" in r.error and "generate failed" in r.error, r.error
+    reason = [b for b in backends if b.model_path == MODELS["reason"]]
+    code = [b for b in backends if b.model_path == MODELS["code"]]
+    assert len(code) == 1, "no critic may run after a code failure"
+    assert reason[0].loads == 1 and reason[0].stops == 1
+    assert code[0].loads == 1
+    assert code[0].stops == 1, f"expected exactly one stop, got {code[0].stops}"
+
+
+def test_exhausted_budget_stops_every_backend_exactly_once():
+    """AC1: retries through the full budget stop every constructed per-phase
+    backend exactly once (reason + code1 + critic + code2)."""
+    factory, backends = _fault_factory({}, {})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=2)
+    assert r.passed is False
+    assert r.error and "budget exhausted" in r.error, r.error
+    assert [b.model_path for b in backends] == [
+        MODELS["reason"], MODELS["code"], MODELS["review"], MODELS["code"]]
+    for b in backends:
+        assert b.loads == 1, f"{b.model_path}: expected one start, got {b.loads}"
+        assert b.stops == 1, f"{b.model_path}: expected exactly one stop, got {b.stops}"
+
+
+def test_resident_backend_stopped_exactly_once_on_completion():
+    """AC1: the resident backend (G2.3 single-model arm) serves every phase
+    and gets exactly one owned stop when the task passes."""
+    factory, backends = _fault_factory({}, {"reason": lambda p: _reference_text()})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3, resident=True)
+    assert r.passed is True
+    assert len(backends) == 1
+    assert backends[0].loads == 1
+    assert backends[0].stops == 1, f"expected exactly one stop, got {backends[0].stops}"
+
+
+def test_resident_backend_stopped_exactly_once_on_budget_exhaustion():
+    """AC1: exhausted retry budget stops the resident backend exactly once."""
+    factory, backends = _fault_factory(
+        {}, {"reason": lambda p: "def most_common_word(text):\n    return None\n"})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=2, resident=True)
+    assert r.passed is False
+    assert r.error and "budget exhausted" in r.error, r.error
+    assert len(backends) == 1
+    assert backends[0].loads == 1
+    assert backends[0].stops == 1, f"expected exactly one stop, got {backends[0].stops}"
+
+
+def test_grading_exception_stops_resident_backend_exactly_once(monkeypatch):
+    """AC1/regression: a grader exception mid-task used to leak the resident
+    backend (stop() only ran on the normal path). The outer ownership now
+    stops it exactly once and the grader's error still propagates."""
+    def boom(task_dir, solution_text=None, solution_path=None, timeout=120):
+        raise RuntimeError("grader boom")
+
+    monkeypatch.setattr("pipeline.loop.grade", boom)
+    factory, backends = _fault_factory({}, {"reason": lambda p: _reference_text()})
+    with pytest.raises(RuntimeError, match="grader boom"):
+        run_task(EXAMPLE, MODELS, factory, max_iterations=3, resident=True)
+    assert len(backends) == 1
+    assert backends[0].loads == 1
+    assert backends[0].stops == 1, f"expected exactly one stop, got {backends[0].stops}"
+
+
+def test_grading_exception_with_per_phase_backends_leaves_none_running(monkeypatch):
+    """AC1: with per-phase backends a grader exception mid-task still leaves
+    every constructed backend stopped exactly once."""
+    def boom(task_dir, solution_text=None, solution_path=None, timeout=120):
+        raise RuntimeError("grader boom")
+
+    monkeypatch.setattr("pipeline.loop.grade", boom)
+    factory, backends = _fault_factory({}, {})
+    with pytest.raises(RuntimeError, match="grader boom"):
+        run_task(EXAMPLE, MODELS, factory, max_iterations=3)
+    assert [b.model_path for b in backends] == [MODELS["reason"], MODELS["code"]]
+    for b in backends:
+        assert b.loads == 1 and b.stops == 1
+
+
+def test_resident_start_failure_stopped_exactly_once():
+    """AC1: a resident backend whose start() raises is still stopped exactly
+    once by its owning layer before the error propagates."""
+    factory, backends = _fault_factory({"reason": {"fail_start": True}}, {})
+    with pytest.raises(RuntimeError, match="start failed"):
+        run_task(EXAMPLE, MODELS, factory, max_iterations=3, resident=True)
+    assert len(backends) == 1
+    assert backends[0].loads == 0
+    assert backends[0].stops == 1, f"expected exactly one stop, got {backends[0].stops}"
+
+
+def test_generate_failure_keeps_original_error_when_stop_also_fails():
+    """AC2: when both generate() and stop() fail, the phase-named original
+    failure is the primary error and stop is attempted exactly once."""
+    factory, backends = _fault_factory(
+        {"code": {"fail_generate": True, "fail_stop": True}}, {})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3)
+    assert r.passed is False
+    assert "code phase failed" in r.error and "generate failed" in r.error, r.error
+    code = [b for b in backends if b.model_path == MODELS["code"]]
+    assert len(code) == 1
+    assert code[0].stops == 1, "a failed stop must not trigger a second attempt"
+
+
+def test_start_failure_keeps_original_error_when_stop_also_fails():
+    """AC2: same for the start path — the start failure stays primary when
+    the single stop attempt also fails."""
+    factory, backends = _fault_factory(
+        {"reason": {"fail_start": True, "fail_stop": True}}, {})
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3)
+    assert r.passed is False
+    assert "reason phase failed" in r.error and "start failed" in r.error, r.error
+    assert backends[0].stops == 1
+
+
+def test_resident_cleanup_failure_never_masks_phase_error():
+    """AC2: a resident stop() failure is appended to (never replacing) the
+    recorded phase-named failure; the task stays failed, not passed."""
+    factory, backends = _fault_factory(
+        {"reason": {"fail_generate": True, "fail_stop": True}},
+        {"reason": lambda p: _reference_text()},
+    )
+    r = run_task(EXAMPLE, MODELS, factory, max_iterations=3, resident=True)
+    assert r.passed is False
+    assert "reason phase failed" in r.error and "generate failed" in r.error, r.error
+    assert "cleanup failed" in r.error, r.error
+    assert backends[0].loads == 1
+    assert backends[0].stops == 1, f"expected exactly one stop, got {backends[0].stops}"
+
+
+def test_grading_exception_stays_primary_when_resident_stop_also_fails(monkeypatch):
+    """AC2: a resident stop() failure during a propagating lifecycle failure
+    (grader exception) never masks that failure."""
+    def boom(task_dir, solution_text=None, solution_path=None, timeout=120):
+        raise RuntimeError("grader boom")
+
+    monkeypatch.setattr("pipeline.loop.grade", boom)
+    factory, backends = _fault_factory(
+        {"reason": {"fail_stop": True}}, {"reason": lambda p: _reference_text()})
+    with pytest.raises(RuntimeError, match="grader boom"):
+        run_task(EXAMPLE, MODELS, factory, max_iterations=3, resident=True)
+    assert backends[0].stops == 1
+
+
+def test_module_level_generate_cleans_up_once_and_keeps_original():
+    """SWAP-02: the standalone module-level _generate owns its backend the
+    same way a phase does: one stop attempt when generate() raises, and the
+    original failure stays primary when the stop also fails."""
+    import pipeline.loop as loop
+    seen = []
+
+    def factory(model_path, port):
+        b = _FaultyBackend(model_path, fail_generate=True, fail_stop=True)
+        seen.append(b)
+        return b
+
+    with pytest.raises(RuntimeError, match="generate failed"):
+        loop._generate(factory, "m.gguf", "prompt", 64, 0.2, 1)
+    assert len(seen) == 1
+    assert seen[0].stops == 1, "expected exactly one stop attempt, got %d" % seen[0].stops
 
 
 
