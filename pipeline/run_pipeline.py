@@ -24,7 +24,7 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from pipeline.contracts import TaskRunResult  # noqa: E402
-from pipeline.loop import run_task  # noqa: E402
+from pipeline.loop import file_sha256, run_task  # noqa: E402
 from runtime.llama_backend import LlamaBackend  # noqa: E402
 
 CATEGORIES = ("bugfix", "feature", "refactor")
@@ -102,8 +102,14 @@ def main() -> None:
     os.makedirs(os.path.dirname(out), exist_ok=True)
 
     kv_cache_dir = args.kv_cache_dir or None
+    model_sha256s: dict = {}
     if kv_cache_dir:
         os.makedirs(kv_cache_dir, exist_ok=True)
+        # SWAP-01 (ADR-0006): the model artifact's content digest is computed
+        # ONCE per run here and passed down as immutable checkpoint identity —
+        # hashing gigabytes again per task or per retry is never acceptable.
+        # None (unreadable artifact) disables the cache for that model.
+        model_sha256s = {"code": file_sha256(models["code"])}
 
     run_meta = {
         "run_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -154,6 +160,7 @@ def main() -> None:
                 handoff=args.handoff,
                 resident=args.resident,
                 kv_cache_dir=kv_cache_dir,
+                model_sha256s=model_sha256s,
             )
         except Exception as e:  # noqa: BLE001
             print(f"    -> ERROR {e}", flush=True)
