@@ -1,5 +1,26 @@
 # STATE.md — ModelSwapper (SwapOS)
 
+## Landing record — 2026-09-13 (SWAP-03 preparation; base 47d20c7, merge 214d7da)
+
+SWAP-03 preparation (docs/execution packet 3) merged to main (merge
+214d7da; branch wt/op-modelswapper-2026-09-11 @ f785d6d; base 47d20c7):
+the pre-registered G1.3 paired-experiment manifest + report scaffold
+(`docs/g1.3-paired-manifest.md`, `docs/g1.3-paired-report.md`). Fixes the
+frozen 50-task pack, model set, runner commands, budgets and both arms
+(L = local pipeline with the CODE-retry KV prefix cache; F =
+`deepseek-v4-pro` with the pipeline's exact loop) before any measurement;
+bar pinned at **≤ 38.52 s** mean total time per task (2 × the committed
+19.26 s API mean), stricter than the repo's rounded 38.6 s statement.
+Review trail: round 1 CHANGES REQUESTED (t_5f4fc332; 6 docs-only fixes) →
+round 2 **APPROVED** (t_ceee6700; diff scope exact, sha256 byte-exact,
+every value traced to committed evidence). **No model was run and no API
+call was made** — the verdict line remains `NOT MEASURED — preparation
+complete, awaiting authorized hardware`. Gates re-run on the merged tree:
+57 passed, 50-task structural OK, sacred scope (benchmarks/tasks, harness,
+results, runtime) untouched. G1.3 (#7) and G1.5 (#9) remain open; next per
+docs/execution ROADMAP: the SWAP-03 measurement itself and SWAP-04 T0
+certification on authorized hardware — not estimated, not fabricated.
+
 ## Landing record — 2026-09-08 (main @ 7b52b60)
 
 SWAP-01 + SWAP-02 (docs/execution packets 1–2) merged to main (merges
